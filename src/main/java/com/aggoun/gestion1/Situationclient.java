@@ -5,11 +5,20 @@
 package com.aggoun.gestion1;
 
 import com.aggoun.gestion1.DB.DataBase;
+import com.itextpdf.text.DocumentException;
 import java.awt.Color;
+import java.awt.print.PrinterException;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.SQLException;
+import java.text.DateFormatSymbols;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
@@ -26,6 +35,7 @@ public class Situationclient extends javax.swing.JFrame {
     public Situationclient() throws SQLException {
         initComponents();
         db.ConnectionToDataBase(); 
+        setLocationRelativeTo(null);
         parametre();
     }
     private void parametre() throws SQLException{
@@ -67,6 +77,10 @@ public class Situationclient extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         TABLE_SITUATION = new javax.swing.JTable();
         BTN_IMPRIMER_SITUATION = new javax.swing.JButton();
+        CHECK_DATE_SITUATION = new javax.swing.JCheckBox();
+        jButton1 = new javax.swing.JButton();
+        DATE_START = new com.toedter.calendar.JDateChooser();
+        DATE_END = new com.toedter.calendar.JDateChooser();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -108,6 +122,23 @@ public class Situationclient extends javax.swing.JFrame {
         BTN_IMPRIMER_SITUATION.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         BTN_IMPRIMER_SITUATION.setForeground(new java.awt.Color(0, 0, 0));
         BTN_IMPRIMER_SITUATION.setText("Imprimer");
+        BTN_IMPRIMER_SITUATION.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BTN_IMPRIMER_SITUATIONActionPerformed(evt);
+            }
+        });
+
+        CHECK_DATE_SITUATION.setBackground(new java.awt.Color(204, 204, 204));
+        CHECK_DATE_SITUATION.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
+        CHECK_DATE_SITUATION.setForeground(new java.awt.Color(0, 0, 0));
+        CHECK_DATE_SITUATION.setText("Par date");
+
+        jButton1.setText("jButton1");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -121,7 +152,14 @@ public class Situationclient extends javax.swing.JFrame {
                         .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(CBX_CLIENT, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))
+                        .addGap(18, 18, 18)
+                        .addComponent(DATE_START, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(DATE_END, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(CHECK_DATE_SITUATION, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(BTN_IMPRIMER_SITUATION)))
@@ -131,9 +169,20 @@ public class Situationclient extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(CBX_CLIENT, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(CBX_CLIENT, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(DATE_START, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(CHECK_DATE_SITUATION)
+                                .addComponent(jButton1))
+                            .addComponent(DATE_END, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 361, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
@@ -158,18 +207,66 @@ public class Situationclient extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void CBX_CLIENTItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_CBX_CLIENTItemStateChanged
-        int id=0;
-        Object client=CBX_CLIENT.getSelectedItem();
-       if(client != null){
-        String cli=client.toString();
-        
-        db.getSituationByClient(TABLE_SITUATION, cli,cli);
-       } 
+     
     }//GEN-LAST:event_CBX_CLIENTItemStateChanged
 
     private void CBX_CLIENTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CBX_CLIENTActionPerformed
-        
+       
     }//GEN-LAST:event_CBX_CLIENTActionPerformed
+
+    private void BTN_IMPRIMER_SITUATIONActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_IMPRIMER_SITUATIONActionPerformed
+      Object client = CBX_CLIENT.getSelectedItem();
+if (client != null) {
+    String cli = client.toString();
+    
+    if (CHECK_DATE_SITUATION.isSelected()) {
+        Date selectedDate = DATE_START.getDate();
+        Date selectedDate1 = DATE_END.getDate();// Récupérer la date sélectionnée
+        if (selectedDate != null && selectedDate1 != null) {
+            
+            try {
+                db.createPdfSituationMonth(cli, selectedDate,selectedDate1, TABLE_SITUATION);
+            } catch (IOException | PrinterException ex) {
+                Logger.getLogger(Situationclient.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (DocumentException ex) {
+                Logger.getLogger(Situationclient.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            // Gérer le cas où aucune date n'est sélectionnée
+        }
+    } else {
+        try {
+            db.createPdfSituation(cli, TABLE_SITUATION);
+        } catch (IOException | PrinterException ex) {
+            Logger.getLogger(Situationclient.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (DocumentException ex) {
+            Logger.getLogger(Situationclient.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+} else {
+    // Gérer le cas où aucun client n'est sélectionné
+}
+    }//GEN-LAST:event_BTN_IMPRIMER_SITUATIONActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+      Object client = CBX_CLIENT.getSelectedItem();
+        if (client != null) {
+            String cli = client.toString();
+            if (CHECK_DATE_SITUATION.isSelected()) {
+                Date dateStart = DATE_START.getDate();
+                Date dateEnd = DATE_END.getDate();
+
+                // Vérification si dateStart n'est pas null avant d'exécuter la méthode
+                if (dateStart != null && dateEnd != null) {
+                    db.getSituationByClientAndDate(TABLE_SITUATION, cli, dateStart, dateEnd);
+                } else {
+                  JOptionPane.showMessageDialog(null, "tu dois choisir les date start et end");
+                }
+            } else {
+                db.getSituationByClient(TABLE_SITUATION, cli);
+            }
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -213,7 +310,11 @@ public class Situationclient extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton BTN_IMPRIMER_SITUATION;
     private javax.swing.JComboBox<String> CBX_CLIENT;
+    private javax.swing.JCheckBox CHECK_DATE_SITUATION;
+    private com.toedter.calendar.JDateChooser DATE_END;
+    private com.toedter.calendar.JDateChooser DATE_START;
     private javax.swing.JTable TABLE_SITUATION;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;

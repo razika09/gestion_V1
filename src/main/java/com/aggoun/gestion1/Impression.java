@@ -38,11 +38,13 @@ public class Impression extends javax.swing.JFrame {
         initComponents();
          db.ConnectionToDataBase();
         parametre_table_impression();
+       setLocationRelativeTo(null);
     }
      private void parametre_table_impression() throws SQLException{
-        jScrollPane1.getViewport().setBackground(Color.WHITE);
+        //jScrollPane1.getViewport().setBackground(Color.WHITE);
         CBX_PARTENAIRE.removeAllItems();
-                db.getAllFournisseur(CBX_PARTENAIRE);
+        db.getAllFournisseur(CBX_PARTENAIRE);
+        
         DefaultTableCellRenderer centre = new DefaultTableCellRenderer();
         centre.setHorizontalAlignment(DefaultTableCellRenderer.CENTER);
         for (int i=0;i<5;i++){
@@ -58,7 +60,7 @@ public class Impression extends javax.swing.JFrame {
        
         DefaultTableCellRenderer head = new DefaultTableCellRenderer();
         head.setHorizontalAlignment(JLabel.CENTER);
-        head.setBackground(new Color(255,255,255));
+         head.setBackground(new Color(252,248,3));
         TABLE_IMPRESSION.getTableHeader().setDefaultRenderer(head);
         TABLE_IMPRESSION.setBackground(Color.WHITE);
         for (int i = 0; i < TABLE_IMPRESSION.getColumnCount(); i++) {
@@ -108,7 +110,7 @@ public class Impression extends javax.swing.JFrame {
         CBX_PARTENAIRE = new javax.swing.JComboBox<>();
         jLabel3 = new javax.swing.JLabel();
         SPIN_NUM_ACHAT_LIVR = new javax.swing.JSpinner();
-        BTN_CHERCHE_IMPRE = new javax.swing.JButton();
+        BTN_IMPRIMPER = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setBackground(new java.awt.Color(204, 204, 204));
@@ -152,27 +154,27 @@ public class Impression extends javax.swing.JFrame {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(22, Short.MAX_VALUE)
-                .addComponent(jLabel4)
-                .addGap(18, 18, 18)
-                .addComponent(LABEL_DATE_IMPRESSION, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(421, 421, 421))
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(40, 40, 40)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 514, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 574, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel4)
+                        .addGap(18, 18, 18)
+                        .addComponent(LABEL_DATE_IMPRESSION, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(92, 92, 92)
+                .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(LABEL_DATE_IMPRESSION, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 486, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 553, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         jLabel1.setBackground(new java.awt.Color(204, 204, 204));
@@ -202,6 +204,16 @@ public class Impression extends javax.swing.JFrame {
         jLabel2.setText("Partenaire :");
 
         CBX_PARTENAIRE.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        CBX_PARTENAIRE.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                CBX_PARTENAIREItemStateChanged(evt);
+            }
+        });
+        CBX_PARTENAIRE.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                CBX_PARTENAIREActionPerformed(evt);
+            }
+        });
 
         jLabel3.setBackground(new java.awt.Color(204, 204, 204));
         jLabel3.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
@@ -209,13 +221,13 @@ public class Impression extends javax.swing.JFrame {
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel3.setText("Bon N° :");
 
-        BTN_CHERCHE_IMPRE.setBackground(new java.awt.Color(0, 204, 255));
-        BTN_CHERCHE_IMPRE.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
-        BTN_CHERCHE_IMPRE.setForeground(new java.awt.Color(0, 0, 0));
-        BTN_CHERCHE_IMPRE.setText("Rehercher");
-        BTN_CHERCHE_IMPRE.addActionListener(new java.awt.event.ActionListener() {
+        BTN_IMPRIMPER.setBackground(new java.awt.Color(0, 204, 255));
+        BTN_IMPRIMPER.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        BTN_IMPRIMPER.setForeground(new java.awt.Color(0, 0, 0));
+        BTN_IMPRIMPER.setText("Imprimer");
+        BTN_IMPRIMPER.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BTN_CHERCHE_IMPREActionPerformed(evt);
+                BTN_IMPRIMPERActionPerformed(evt);
             }
         });
 
@@ -224,8 +236,9 @@ public class Impression extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(33, 33, 33)
+                .addGap(21, 21, 21)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel1)
                     .addComponent(jLabel2)
@@ -234,33 +247,33 @@ public class Impression extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(SPIN_NUM_ACHAT_LIVR, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(BTN_CHERCHE_IMPRE)
+                        .addComponent(BTN_IMPRIMPER)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(CBX_TYPE_OP, 0, 164, Short.MAX_VALUE)
                             .addComponent(CBX_PARTENAIRE, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addGap(0, 27, Short.MAX_VALUE))
+                .addGap(0, 16, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 846, Short.MAX_VALUE)
-                .addContainerGap())
-            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(CBX_TYPE_OP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(CBX_PARTENAIRE, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(SPIN_NUM_ACHAT_LIVR, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(31, 31, 31)
-                .addComponent(BTN_CHERCHE_IMPRE)
-                .addContainerGap(677, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel1)
+                            .addComponent(CBX_TYPE_OP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel2)
+                            .addComponent(CBX_PARTENAIRE, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel3)
+                            .addComponent(SPIN_NUM_ACHAT_LIVR, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(31, 31, 31)
+                        .addComponent(BTN_IMPRIMPER))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 611, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -308,7 +321,7 @@ public class Impression extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_CBX_TYPE_OPItemStateChanged
    
-    private void BTN_CHERCHE_IMPREActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_CHERCHE_IMPREActionPerformed
+    private void BTN_IMPRIMPERActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_IMPRIMPERActionPerformed
        String type=CBX_TYPE_OP.getSelectedItem().toString();
         if ("livraison".equals(type)) { 
             Object client =CBX_PARTENAIRE.getSelectedItem();
@@ -378,7 +391,127 @@ public class Impression extends javax.swing.JFrame {
             }    
         
         }    
-    }//GEN-LAST:event_BTN_CHERCHE_IMPREActionPerformed
+    }//GEN-LAST:event_BTN_IMPRIMPERActionPerformed
+
+    private void CBX_PARTENAIREActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CBX_PARTENAIREActionPerformed
+        String type=CBX_TYPE_OP.getSelectedItem().toString();
+        if ("livraison".equals(type)) { 
+            Object client =CBX_PARTENAIRE.getSelectedItem();
+            if(client != null){
+               int value = (int) SPIN_NUM_ACHAT_LIVR.getValue();
+                try {
+                    String CNR_NIF_USER =db.getCNRandNIFuser();
+                     String splituser[]=CNR_NIF_USER.split(" ");
+                    String CNRuser = splituser[0];
+                    String NIFuser = splituser[1];
+                    String ADRESSEuser = db.getAdresseUser();
+                    
+                     String[] splitCli = client.toString().split(" ");
+                    String nom = splitCli[0];
+                    String prenom = splitCli[1];
+                    int id = db.chercheIdClient(nom,prenom);
+                    String CNR_NIF_CLIENT =db.getCNRandNIFclient(id);
+                     String splitClient[]=CNR_NIF_CLIENT.split(" ");
+                    String CNRclient = splitClient[0];
+                    String NIFclient = splitClient[1];
+                    db.allLivraisonImpression(TABLE_IMPRESSION, LABEL_DATE_IMPRESSION, client.toString(),value);
+                    double tva = db.getTVAuser();
+                    //db.createAndShowPDF(client.toString(),value,ADRESSEuser,CNRuser,NIFuser,CNRclient,NIFclient,tva);
+                } catch (SQLException ex) {
+                    Logger.getLogger(Impression.class.getName()).log(Level.SEVERE, null, ex);
+                }
+        
+            }    
+        }else if ("achat".equals(type)) { 
+            Object fourni =CBX_PARTENAIRE.getSelectedItem();
+            if(fourni != null){
+               int value = (int) SPIN_NUM_ACHAT_LIVR.getValue();
+                try {
+                    String CNR_NIF_USER =db.getCNRandNIFuser();
+                     String splituser[]=CNR_NIF_USER.split(" ");
+                    String CNRuser = splituser[0];
+                    String NIFuser = splituser[1];
+                    String ADRESSEuser = db.getAdresseUser();
+                    
+                     String[] splitFourni = fourni.toString().split(" ");
+                    String produit = splitFourni[0];
+                    String marque = splitFourni[1];
+                    int id = db.chercheIdFournisseur(fourni.toString());
+                    String CNR_NIF_FOURNI =db.getCNRandNIFfourni(id);
+                     String splitF[]=CNR_NIF_FOURNI.split(" ");
+                    String CNRfourni = splitF[0];
+                    String NIFfourni = splitF[1];
+                    db.allAchatImpression(TABLE_IMPRESSION, LABEL_DATE_IMPRESSION, fourni.toString(),value);
+                    double tva = db.getTVAuser();
+                    //db.createAndShowPDFFourni(fourni.toString(),value,ADRESSEuser,CNRuser,NIFuser,CNRfourni,NIFfourni,tva);
+                } catch (SQLException ex) {
+                    Logger.getLogger(Impression.class.getName()).log(Level.SEVERE, null, ex);
+                }
+        
+            }    
+        
+        } 
+    }//GEN-LAST:event_CBX_PARTENAIREActionPerformed
+
+    private void CBX_PARTENAIREItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_CBX_PARTENAIREItemStateChanged
+        String type=CBX_TYPE_OP.getSelectedItem().toString();
+        if ("livraison".equals(type)) { 
+            Object client =CBX_PARTENAIRE.getSelectedItem();
+            if(client != null){
+               int value = (int) SPIN_NUM_ACHAT_LIVR.getValue();
+                try {
+                    String CNR_NIF_USER =db.getCNRandNIFuser();
+                     String splituser[]=CNR_NIF_USER.split(" ");
+                    String CNRuser = splituser[0];
+                    String NIFuser = splituser[1];
+                    String ADRESSEuser = db.getAdresseUser();
+                    
+                     String[] splitCli = client.toString().split(" ");
+                    String nom = splitCli[0];
+                    String prenom = splitCli[1];
+                    int id = db.chercheIdClient(nom,prenom);
+                    String CNR_NIF_CLIENT =db.getCNRandNIFclient(id);
+                     String splitClient[]=CNR_NIF_CLIENT.split(" ");
+                    String CNRclient = splitClient[0];
+                    String NIFclient = splitClient[1];
+                    db.allLivraisonImpression(TABLE_IMPRESSION, LABEL_DATE_IMPRESSION, client.toString(),value);
+                    double tva = db.getTVAuser();
+                    //db.createAndShowPDF(client.toString(),value,ADRESSEuser,CNRuser,NIFuser,CNRclient,NIFclient,tva);
+                } catch (SQLException ex) {
+                    Logger.getLogger(Impression.class.getName()).log(Level.SEVERE, null, ex);
+                }
+        
+            }    
+        }else if ("achat".equals(type)) { 
+            Object fourni =CBX_PARTENAIRE.getSelectedItem();
+            if(fourni != null){
+               int value = (int) SPIN_NUM_ACHAT_LIVR.getValue();
+                try {
+                    String CNR_NIF_USER =db.getCNRandNIFuser();
+                     String splituser[]=CNR_NIF_USER.split(" ");
+                    String CNRuser = splituser[0];
+                    String NIFuser = splituser[1];
+                    String ADRESSEuser = db.getAdresseUser();
+                    
+                     String[] splitFourni = fourni.toString().split(" ");
+                    String produit = splitFourni[0];
+                    String marque = splitFourni[1];
+                    int id = db.chercheIdFournisseur(fourni.toString());
+                    String CNR_NIF_FOURNI =db.getCNRandNIFfourni(id);
+                     String splitF[]=CNR_NIF_FOURNI.split(" ");
+                    String CNRfourni = splitF[0];
+                    String NIFfourni = splitF[1];
+                    db.allAchatImpression(TABLE_IMPRESSION, LABEL_DATE_IMPRESSION, fourni.toString(),value);
+                    double tva = db.getTVAuser();
+                    //db.createAndShowPDFFourni(fourni.toString(),value,ADRESSEuser,CNRuser,NIFuser,CNRfourni,NIFfourni,tva);
+                } catch (SQLException ex) {
+                    Logger.getLogger(Impression.class.getName()).log(Level.SEVERE, null, ex);
+                }
+        
+            }    
+        
+        }    
+    }//GEN-LAST:event_CBX_PARTENAIREItemStateChanged
 
     /**
      * @param args the command line arguments
@@ -386,7 +519,7 @@ public class Impression extends javax.swing.JFrame {
  
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton BTN_CHERCHE_IMPRE;
+    private javax.swing.JButton BTN_IMPRIMPER;
     private javax.swing.JComboBox<String> CBX_PARTENAIRE;
     private javax.swing.JComboBox<String> CBX_TYPE_OP;
     private javax.swing.JLabel LABEL_DATE_IMPRESSION;

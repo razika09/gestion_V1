@@ -79,6 +79,7 @@ import javax.swing.table.TableColumn;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.PageSize;
 
 
 import com.itextpdf.text.Phrase;
@@ -86,10 +87,14 @@ import com.itextpdf.text.Rectangle;
 
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfPageEventHelper;
+import com.mysql.cj.xdevapi.Table;
 import java.awt.Font;
+import java.io.FileNotFoundException;
 //import java.awt.Font;
 
 import java.math.BigDecimal;
+import java.util.Locale;
 import java.util.Vector;
 import javax.swing.JSpinner;
 import static javax.swing.text.StyleConstants.FontFamily;
@@ -167,19 +172,18 @@ public class DataBase {
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         // Récupérer le composant par défaut pour le rendu des cellules
-        JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        Component cellComponent = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-        // Vérifier si la valeur de la cellule est "Oui" dans la colonne "Alerte"
+        // Vérifier si la valeur de la cellule est "ALERTE" dans la colonne "Alerte"
         if (value != null && value.toString().equals("ALERTE")) {
             // Appliquer un fond rouge à la cellule
-             
-            label.setBackground(Color.RED);
+            cellComponent.setBackground(Color.RED);
         } else {
             // Réinitialiser le fond à la couleur par défaut de la table
-            label.setBackground(Color.GREEN);
+            cellComponent.setBackground(table.getBackground());
         }
 
-        return label;
+        return cellComponent;
     }
 }
     //********************chercher ID du client selon le nom et prenom******************
@@ -1184,7 +1188,7 @@ public String getAdresseClient(){
              return CNR_NIF;
 }
        
-       public void createAndShowPDFFourni(String fourni, int num,String adresseuser,String CNRuser,String NIFuser,String CNRfourni,String NIFfourni,double tva) throws SQLException, DocumentException, IOException, PrinterException {
+ public void createAndShowPDFFourni(String fourni, int num,String adresseuser,String CNRuser,String NIFuser,String CNRfourni,String NIFfourni,double tva) throws SQLException, DocumentException, IOException, PrinterException {
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
     String dateStr = null;
     double montant = 0.00;
@@ -1574,7 +1578,8 @@ class CustomTableCellRenderer extends DefaultTableCellRenderer {
         return c;
     }
 }
-public void createPdfSituation(){
+
+public void getSortie(String client){
     
 }
 class CustomTableHeaderRenderer implements TableCellRenderer {
@@ -1602,31 +1607,26 @@ class CustomTableHeaderRenderer implements TableCellRenderer {
         String sql = "SELECT produit,SUM(CASE WHEN type = 'Entrée' THEN quantite ELSE 0 END) AS quantite_entree,SUM(CASE WHEN type = 'Sortie' THEN quantite ELSE 0 END) AS quantite_sortie FROM stock GROUP BY produit;";
        DefaultTableModel model1 = new DefaultTableModel(new Object[]{"Produit", "Tot/Entree", "Tot/Sortie", "Val/Min", "Alerte"}, 0);
   
-        for (int i = 0; i < alertFrames.size(); i++) {
-        JFrame alertFrame = alertFrames.get(i);
-        // Masquer la frame d'alerte
-        alertFrame.setVisible(false);
-        // Supprimer la frame d'alerte de l'application
-        alertFrames.remove(alertFrame);
-        // Décrémenter l'indice pour rester cohérent avec la nouvelle taille de la liste
-        i--;
+       for (JFrame alertFrame : alertFrames) {
+        alertFrame.dispose();
     }
+    alertFrames.clear();
         try (PreparedStatement st = cnx.prepareStatement(sql)) {
             try (ResultSet rs = st.executeQuery()) {
                // model1.setRowCount(0);
                 while (rs.next()) {
                     int quantite_entree = rs.getInt("quantite_entree");
-                int quantite_sortie = -rs.getInt("quantite_sortie");
+                    int quantite_sortie = -rs.getInt("quantite_sortie");
 
-                // Calculer le total actuel du stock pour chaque produit
-                int total_stock = quantite_entree - quantite_sortie;
+                    // Calculer le total actuel du stock pour chaque produit
+                    int total_stock = quantite_entree - quantite_sortie;
 
-                // Valeur minimale prédéfinie pour chaque produit (exemple)
-                int valeur_min = 50; // Exemple de valeur minimale
-                System.out.println(rs.getString("produit"));
-                // Ajouter les valeurs aux colonnes "Val/Min" et "Alerte"
-                String alerte = total_stock < valeur_min ? "ALERTE" : "NORMAL";
-                Object[] rowData = new Object[]{
+                    // Valeur minimale prédéfinie pour chaque produit (exemple)
+                    int valeur_min = 50; // Exemple de valeur minimale
+                    
+                    // Ajouter les valeurs aux colonnes "Val/Min" et "Alerte"
+                    String alerte = total_stock < valeur_min ? "ALERTE" : "NORMAL";
+                    Object[] rowData = new Object[]{
                     rs.getString("produit"),
                     quantite_entree,
                     quantite_sortie,
@@ -1646,8 +1646,9 @@ class CustomTableHeaderRenderer implements TableCellRenderer {
 
     // Mettre à jour l'affichage de la JTable
     ((DefaultTableModel) T.getModel()).fireTableDataChanged();
-  }
-    private List<JFrame> alertFrames = new ArrayList<>();
+  
+ }
+private List<JFrame> alertFrames = new ArrayList<>();
 
 public void Alert(String message) {
     SwingUtilities.invokeLater(() -> {
@@ -1961,167 +1962,262 @@ private void positionnerAlertes() {
      }
      //*****************modifier une achat par quantite****************************************
      public void modifierLivraisonByQTE(int id,int num,Livraison livraison) throws SQLException{
-         try {
-             String sql = "UPDATE livraison SET quantite=?,montant=? WHERE id_client=? AND num=? AND produit=? AND marque=?";
-             PreparedStatement st =cnx.prepareStatement(sql);
-             
-             st.setInt(1, livraison.getQuantite());
-             st.setDouble(2, livraison.getMontant());
-             st.setInt(3, id);
-             st.setInt(4, num);
-             st.setString(5, livraison.getProduit());
-             st.setString(6, livraison.getMarque());
-              int row =st.executeUpdate();
-              if (row>0){
-                  System.out.println("update success");
-              }else{
-                  System.out.println(" NO update success");
-              }
-         }catch(SQLException ex){
-            Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE,null,ex);
-            
+        try {
+    String sql = "UPDATE livraison SET quantite=?,montant=? WHERE id_client=? AND num=? AND produit=? AND marque=?";
+    PreparedStatement st = cnx.prepareStatement(sql);
+
+    st.setInt(1, livraison.getQuantite());
+    st.setDouble(2, livraison.getMontant());
+    st.setInt(3, id);
+    st.setInt(4, num);
+    st.setString(5, livraison.getProduit());
+    st.setString(6, livraison.getMarque());
+    
+    int row = st.executeUpdate();
+    if (row > 0) {
+        System.out.println("Update success");
+    } else {
+        System.out.println("NO update success");
+    }
+} catch (SQLException ex) {
+    Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
+} finally {
+    // Close PreparedStatement
+    if (st != null) {
+        try {
+            st.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+    }
+}
      }
       //*********************remplir le combobox produit********************************
     public void getAllProduit(JComboBox combo) throws SQLException{
-        try{
-            String sql ="SELECT produit,marque FROM produit ORDER BY produit,marque";
-            try (PreparedStatement stmt =cnx.prepareStatement(sql);
-                 ResultSet rst =stmt.executeQuery()){
-                boolean hasresult = false;
-                while (rst.next()){
-                    hasresult = true;
-                    String produit = rst.getString("produit");
-                    String marque = rst.getString("marque");
-                    combo.addItem(produit + " " + marque);
-                }
-                if(!hasresult){
-                    System.out.println("pas de produit");
-                }
-                
-            }
-        }catch (SQLException e){
-            e.printStackTrace();
+          PreparedStatement stmt = null;
+    ResultSet rst = null;
+    
+    try {
+        String sql = "SELECT produit,marque FROM produit ORDER BY produit,marque";
+        stmt = cnx.prepareStatement(sql);
+        rst = stmt.executeQuery();
+        
+        boolean hasResult = false;
+        while (rst.next()) {
+            hasResult = true;
+            String produit = rst.getString("produit");
+            String marque = rst.getString("marque");
+            combo.addItem(produit + " " + marque);
         }
+        
+        if (!hasResult) {
+            System.out.println("pas de produit");
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    } finally {
+        // Closing ResultSet and PreparedStatement
+        if (rst != null) {
+            try {
+                rst.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        if (stmt != null) {
+            try {
+                stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
     }
     
     //********************verifier si un produit existe deja********************************
     public boolean produitExist(String produit,String marque){
-        boolean exists=false;
-        try{
-            String sql="SELECT COUNT(*) FROM produit WHERE produit=? AND marque=?";
-            try(PreparedStatement statement =cnx.prepareStatement(sql)){
-                statement.setString(1, produit);
-                statement.setString(2,marque);
-                try(ResultSet resultset =statement.executeQuery()){
-                    if(resultset.next()){
-                        int count=resultset.getInt(1);
-                        exists=count>0;
-                    }
+        boolean exists = false;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+
+        try {
+            String sql = "SELECT COUNT(*) FROM produit WHERE produit=? AND marque=?";
+            statement = cnx.prepareStatement(sql);
+            statement.setString(1, produit);
+            statement.setString(2, marque);
+            resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                int count = resultSet.getInt(1);
+                exists = count > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            // Closing ResultSet and PreparedStatement
+            if (resultSet != null) {
+                try {
+                    resultSet.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
             }
-        }catch(SQLException e){
-            e.printStackTrace();
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return exists;
     }
     //***************************modifier prix d'un produit**************************
     public void modifierPrix(double prix,int idclient,int idproduit){
-        try {
-             String sql = "UPDATE client_produit SET prix=? WHERE id_client=? AND id_produit=?";
-             PreparedStatement st =cnx.prepareStatement(sql);
-             st.setDouble(1, prix);
-             st.setInt(2, idclient);
-             st.setInt(3, idproduit);
-           
-              int row =st.executeUpdate();
-              if (row>0){
-                  System.out.println("update success");
-              }else{
-                  System.out.println(" NO update success");
-              }
-         }catch(SQLException ex){
-            Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE,null,ex);
-            
+       try {
+            String sql = "UPDATE client_produit SET prix=? WHERE id_client=? AND id_produit=?";
+            PreparedStatement st = cnx.prepareStatement(sql);
+            st.setDouble(1, prix);
+            st.setInt(2, idclient);
+            st.setInt(3, idproduit);
+
+            int row = st.executeUpdate();
+            if (row > 0) {
+                System.out.println("update success");
+            } else {
+                System.out.println("NO update success");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            // Closing PreparedStatement
+            if (st != null) {
+                try {
+                    st.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
     
     //***************************modifier prix d'un produit**************************
     public void modifierPrixFournisseur(double prix,int idfourni,int idproduit){
-        try {
-             String sql = "UPDATE fournisseur_produit SET prix=? WHERE id_fournisseur=? AND id_produit=?";
-             PreparedStatement st =cnx.prepareStatement(sql);
-             st.setDouble(1, prix);
-             st.setInt(2, idfourni);
-             st.setInt(3, idproduit);
-           
-              int row =st.executeUpdate();
-              if (row>0){
-                  System.out.println("update success");
-              }else{
-                  System.out.println(" NO update success");
-              }
-         }catch(SQLException ex){
-            Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE,null,ex);
-            
+     try {
+            String sql = "UPDATE fournisseur_produit SET prix=? WHERE id_fournisseur=? AND id_produit=?";
+            PreparedStatement st = cnx.prepareStatement(sql);
+            st.setDouble(1, prix);
+            st.setInt(2, idfourni);
+            st.setInt(3, idproduit);
+
+            int row = st.executeUpdate();
+            if (row > 0) {
+                System.out.println("update success");
+            } else {
+                System.out.println("NO update success");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            // Closing PreparedStatement
+            if (st != null) {
+                try {
+                    st.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
     //************************verifier si un produit pour un client a un prix******************
     public boolean ClientProduitExist(int idclient,int idproduit) throws SQLException{
-        boolean exist =false;
-        try{
-            String sql="SELECT COUNT(*) FROM client_produit WHERE id_client =? AND id_produit=?";
-            try (PreparedStatement st =cnx.prepareStatement(sql)){
-                st.setInt(1, idclient);
-                st.setInt(2, idproduit);
-                try(ResultSet rst = st.executeQuery()){
-                    if(rst.next()){
-                        int count =rst.getInt(1);
-                        exist=count>0;
-                    }
+     boolean exist = false;
+        PreparedStatement st = null;
+        ResultSet rst = null;
+
+        try {
+            String sql = "SELECT COUNT(*) FROM client_produit WHERE id_client =? AND id_produit=?";
+            st = cnx.prepareStatement(sql);
+            st.setInt(1, idclient);
+            st.setInt(2, idproduit);
+
+            rst = st.executeQuery();
+            if (rst.next()) {
+                int count = rst.getInt(1);
+                exist = count > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            // Closing ResultSet and PreparedStatement
+            if (rst != null) {
+                try {
+                    rst.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
             }
-        }catch(SQLException e){
-            e.printStackTrace();
+            if (st != null) {
+                try {
+                    st.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return exist;
     }
    
     //*****************ajout prix du produit pour un client*****************
-    public void ajouterPrix(int idclient, int idproduit, double prix) {
-    try {
-        String sql = "INSERT INTO client_produit (id_client, id_produit, prix) VALUES (?, ?, ?)";
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
-            ps.setInt(1, idclient);
-            ps.setInt(2, idproduit);
-            ps.setDouble(3, prix);
-            ps.executeUpdate();
+ public void ajouterPrix(int idclient, int idproduit, double prix) {
+  PreparedStatement ps = null;
+try {
+    String sql = "INSERT INTO client_produit (id_client, id_produit, prix) VALUES (?, ?, ?)";
+    ps = cnx.prepareStatement(sql);
+    ps.setInt(1, idclient);
+    ps.setInt(2, idproduit);
+    ps.setDouble(3, prix);
+    ps.executeUpdate();
+} catch (SQLException e) {
+    Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, "Erreur lors de l'ajout de prix", e);
+    JOptionPane.showMessageDialog(null, "Erreur lors de l'ajout de prix : " + e.getMessage());
+} finally {
+    // Closing PreparedStatement
+    if (ps != null) {
+        try {
+            ps.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, "Erreur lors de l'ajout de prix", e);
-        JOptionPane.showMessageDialog(null, "Erreur lors de l'ajout de prix : " + e.getMessage());
     }
+}
 }
     
     //******remplir table prix client********************
     public void allClientProduitTable(JTable T) throws SQLException{
-        try{
-            ArrayList<ClientPrix> list = new ArrayList<ClientPrix>();
-            Statement st =cnx.createStatement();
+       ArrayList<ClientPrix> list = new ArrayList<>();
+        Statement st = null;
+        ResultSet rst = null;
+
+        try {
+            st = cnx.createStatement();
             String sql = "SELECT produit.produit AS produit, produit.unite AS unite_produit, produit.marque AS marque_produit, " +
-                        "client_produit.prix AS prix_produit, client.nom AS nom_client, client.prenom AS prenom_client " +
-                        "FROM client_produit " +
-                        "JOIN client ON client_produit.id_client = client.idclient " +
-                        "JOIN produit ON client_produit.id_produit = produit.idproduit";
-            ResultSet rst= (ResultSet) st.executeQuery(sql);
-            while(rst.next()){
-                ClientPrix clientprix = new ClientPrix(rst.getString("produit"),rst.getString("marque_produit"),rst.getInt("unite_produit"),rst.getDouble("prix_produit"),rst.getString("nom_client")+" "+ rst.getString("prenom_client"));
+                         "client_produit.prix AS prix_produit, client.nom AS nom_client, client.prenom AS prenom_client " +
+                         "FROM client_produit " +
+                         "JOIN client ON client_produit.id_client = client.idclient " +
+                         "JOIN produit ON client_produit.id_produit = produit.idproduit";
+            rst = st.executeQuery(sql);
+
+            while (rst.next()) {
+                ClientPrix clientprix = new ClientPrix(rst.getString("produit"), rst.getString("marque_produit"), rst.getInt("unite_produit"), rst.getDouble("prix_produit"), rst.getString("nom_client") + " " + rst.getString("prenom_client"));
                 list.add(clientprix);
             }
+
             DefaultTableModel mo = (DefaultTableModel) T.getModel();
             mo.setRowCount(0);
             Object row[] = new Object[5];
-            for (int k=0;k<list.size();k++){
+
+            for (int k = 0; k < list.size(); k++) {
                 row[0] = list.get(k).getProduit();
                 row[1] = list.get(k).getMarque();
                 row[2] = list.get(k).getUnite();
@@ -2129,31 +2225,64 @@ private void positionnerAlertes() {
                 row[4] = list.get(k).getClient();
                 mo.addRow(row);
             }
+
             list.clear();
-            
-            
-        }catch(SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            // Closing ResultSet and Statement
+            if (rst != null) {
+                try {
+                    rst.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (st != null) {
+                try {
+                    st.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
     
     //********************verifier si une livraison existe deja*****************************
     public boolean livraisonExist(int num,String client) throws SQLException{
         boolean exist = false;
-        try{
+        PreparedStatement st = null;
+        ResultSet rst = null;
+
+        try {
             String sql = "SELECT COUNT(*) FROM livraison WHERE num=? AND client = ?";
-            try (PreparedStatement st =cnx.prepareStatement(sql)){
-                st.setInt(1, num);
-                st.setString(2, client);
-                try (ResultSet rst =st.executeQuery()){
-                    if (rst.next()){
-                        int count =rst.getInt(1);
-                        exist=count > 0;
-                    }
+            st = cnx.prepareStatement(sql);
+            st.setInt(1, num);
+            st.setString(2, client);
+
+            rst = st.executeQuery();
+            if (rst.next()) {
+                int count = rst.getInt(1);
+                exist = count > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            // Closing ResultSet and PreparedStatement
+            if (rst != null) {
+                try {
+                    rst.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
             }
-        }catch(SQLException e){
-            e.printStackTrace();
+            if (st != null) {
+                try {
+                    st.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return exist;
     }
@@ -2229,45 +2358,588 @@ private void positionnerAlertes() {
     }
     return num;
 }
-    public void getSituation(JTable T){
+public void createPdfSituation(String client, JTable T)throws DocumentException, IOException, PrinterException {
+       Document document = new Document();
+        document.setMargins(20, 20, 10, 20);
+        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream("Situation_de_fournisseur_" + client + ".pdf"));
+
+        document.open();
+        Paragraph paragraph = new Paragraph("ENTREPRISE GHILASS GLACE", FontFactory.getFont(FontFactory.HELVETICA_BOLDOBLIQUE, 14));
+        paragraph.setAlignment(Element.ALIGN_CENTER); // Alignement au centre
         
-        String query = "SELECT \n" +
-"    client,"+                
-"    num AS num_livraison, \n" +
-"    montant AS montant_livraison, \n" +
-"    datesortie AS date_livraison,\n" +
-"    NULL AS num_versement,\n" +
-"    NULL AS montant_versement,\n" +
-"    NULL AS date_versement\n" +
-"FROM \n" +
-"    sortieclient\n" +
-"\n" +
-"UNION ALL\n" +
-"\n" +
-"SELECT \n" +
-"    client,"+                
-"    NULL AS num_livraison, \n" +
-"    NULL AS montant_livraison, \n" +
-"    NULL AS date_livraison,\n" +
-"    num AS num_versement,\n" +
-"    versement AS montant_versement,\n" +
-"    date AS date_versement\n" +
-"FROM \n" +
-"    versement\n" +
-"\n" +
-"ORDER BY \n" +
-"    CASE \n" +
-"        WHEN date_livraison IS NOT NULL THEN date_livraison\n" +
-"        ELSE date_versement \n" +
-"    END";
+        document.add(paragraph);
+        document.add(new Paragraph("\n"));
+        PdfPTable mainTable = new PdfPTable(6);
+        mainTable.setWidthPercentage(90);
+        float[] columnWidths = {15f, 45f, 35f, 15f, 45f, 35f}; // Par exemple, définir les largeurs de chaque colonne
+        mainTable.setWidths(columnWidths);
+        // Titre du fournisseur
+        Paragraph titleParagraph = new Paragraph();
+        titleParagraph.add(new Phrase("SITUATION DU FOURNISSEUR ", FontFactory.getFont(FontFactory.HELVETICA, 12)));
+        Chunk clientChunk = new Chunk(client, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+        titleParagraph.add(clientChunk);
+        titleParagraph.setAlignment(Element.ALIGN_CENTER);
+        // Création de la cellule pour le titre du fournisseur
+        PdfPCell titleCell = new PdfPCell(titleParagraph);
+        titleCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        titleCell.setFixedHeight(20f);
+        titleCell.setColspan(6); // Fusionner les six colonnes
+        mainTable.addCell(titleCell);
+
+        // Ajouter l'étiquette "ACHAT" fusionnée sur les trois premières colonnes
+        PdfPCell achatCell = new PdfPCell(new Phrase("ACHAT"));
+        achatCell.setBorder(Rectangle.BOX);
+        achatCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        achatCell.setFixedHeight(20f);
+        achatCell.setColspan(3);
+        mainTable.addCell(achatCell);
+
+        // Ajouter l'étiquette "VERSEMENT" fusionnée sur les trois dernières colonnes
+        PdfPCell versementCell = new PdfPCell(new Phrase("VERSEMENT"));
+        versementCell.setBorder(Rectangle.BOX);
+        versementCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        versementCell.setFixedHeight(20f);
+        versementCell.setColspan(3);
+        mainTable.addCell(versementCell);
+
+      for (int i = 0; i < T.getColumnCount(); i++) {
+            PdfPCell columnHeaderCell = new PdfPCell(new Phrase(T.getColumnName(i)));
+            columnHeaderCell.setHorizontalAlignment(Element.ALIGN_CENTER); // Centrer le contenu horizontal
+            mainTable.addCell(columnHeaderCell);
+       }
+    // Ajouter les données de la JTable à la table PDF
+        for (int row = 0; row < T.getRowCount(); row++) {
+          for (int column = 0; column < T.getColumnCount(); column++) {
+              Object value = T.getValueAt(row, column);
+              String cellData = (value != null) ? String.valueOf(value) : ""; // Si la valeur est nulle, utiliser une chaîne vide
+              PdfPCell dataCell = new PdfPCell(new Phrase(cellData));
+              dataCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+              dataCell.setFixedHeight(20f);
+              mainTable.addCell(dataCell);
+          }
+      }
+        // Calculer et ajouter le total
+        DecimalFormat df = new DecimalFormat("0.00");
+        double totalLivraison = calculateColumnSum(mainTable, 1);
+        double totalVersement = calculateColumnSum(mainTable, 4);
+        double difference = totalLivraison - totalVersement;
+        String formattedTotal = df.format(difference);
+        System.out.println("Total Montant : " + difference);
+        
+      
+
+        // Ajout de la cellule contenant la valeur du total
+        PdfPCell valueCell1 = new PdfPCell(new Phrase("Total : "+ totalLivraison, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
+        valueCell1.setHorizontalAlignment(Element.ALIGN_CENTER);
+        valueCell1.setFixedHeight(20f);
+        valueCell1.setColspan(3);
+        mainTable.addCell(valueCell1);
+        PdfPCell valueCell2 = new PdfPCell(new Phrase("Total : "+ totalVersement, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
+        valueCell2.setHorizontalAlignment(Element.ALIGN_CENTER);
+        valueCell2.setFixedHeight(20f);
+        valueCell2.setColspan(3);
+        mainTable.addCell(valueCell2);
+
+        // Ajout de la cellule contenant la valeur du total
+        PdfPCell valueCell = new PdfPCell(new Phrase("Situation : "+ formattedTotal, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
+        valueCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        valueCell.setFixedHeight(20f);
+        valueCell.setColspan(6);
+        mainTable.addCell(valueCell);
+
+        document.add(mainTable);
+        document.close();
+
+        printPDF("Situation_de_fournisseur_" + client + ".pdf");
+    }
+
+ public void createPdfSituationF(String fourni, JTable T) throws DocumentException, IOException, PrinterException {
+       Document document = new Document();
+        document.setMargins(20, 20, 10, 20);
+        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream("Situation_de_fournisseur_" + fourni + ".pdf"));
+
+        document.open();
+        Paragraph paragraph = new Paragraph("ENTREPRISE GHILASS GLACE", FontFactory.getFont(FontFactory.HELVETICA_BOLDOBLIQUE, 14));
+        paragraph.setAlignment(Element.ALIGN_CENTER); // Alignement au centre
+        
+        document.add(paragraph);
+        document.add(new Paragraph("\n"));
+        PdfPTable mainTable = new PdfPTable(6);
+        mainTable.setWidthPercentage(90);
+        float[] columnWidths = {15f, 45f, 35f, 15f, 45f, 35f}; // Par exemple, définir les largeurs de chaque colonne
+        mainTable.setWidths(columnWidths);
+        // Titre du fournisseur
+        Paragraph titleParagraph = new Paragraph();
+        titleParagraph.add(new Phrase("SITUATION DU FOURNISSEUR ", FontFactory.getFont(FontFactory.HELVETICA, 12)));
+        Chunk clientChunk = new Chunk(fourni, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+        titleParagraph.add(clientChunk);
+        titleParagraph.setAlignment(Element.ALIGN_CENTER);
+        // Création de la cellule pour le titre du fournisseur
+        PdfPCell titleCell = new PdfPCell(titleParagraph);
+        titleCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        titleCell.setFixedHeight(20f);
+        titleCell.setColspan(6); // Fusionner les six colonnes
+        mainTable.addCell(titleCell);
+
+        // Ajouter l'étiquette "ACHAT" fusionnée sur les trois premières colonnes
+        PdfPCell achatCell = new PdfPCell(new Phrase("ACHAT"));
+        achatCell.setBorder(Rectangle.BOX);
+        achatCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        achatCell.setFixedHeight(20f);
+        achatCell.setColspan(3);
+        mainTable.addCell(achatCell);
+
+        // Ajouter l'étiquette "VERSEMENT" fusionnée sur les trois dernières colonnes
+        PdfPCell versementCell = new PdfPCell(new Phrase("VERSEMENT"));
+        versementCell.setBorder(Rectangle.BOX);
+        versementCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        versementCell.setFixedHeight(20f);
+        versementCell.setColspan(3);
+        mainTable.addCell(versementCell);
+
+      for (int i = 0; i < T.getColumnCount(); i++) {
+            PdfPCell columnHeaderCell = new PdfPCell(new Phrase(T.getColumnName(i)));
+            columnHeaderCell.setHorizontalAlignment(Element.ALIGN_CENTER); // Centrer le contenu horizontal
+            mainTable.addCell(columnHeaderCell);
+       }
+    // Ajouter les données de la JTable à la table PDF
+        for (int row = 0; row < T.getRowCount(); row++) {
+          for (int column = 0; column < T.getColumnCount(); column++) {
+              Object value = T.getValueAt(row, column);
+              String cellData = (value != null) ? String.valueOf(value) : ""; // Si la valeur est nulle, utiliser une chaîne vide
+              PdfPCell dataCell = new PdfPCell(new Phrase(cellData));
+              dataCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+              dataCell.setFixedHeight(20f);
+              mainTable.addCell(dataCell);
+          }
+      }
+        // Calculer et ajouter le total
+        DecimalFormat df = new DecimalFormat("0.00");
+        double totalLivraison = calculateColumnSum(mainTable, 1);
+        double totalVersement = calculateColumnSum(mainTable, 4);
+        double difference = totalLivraison - totalVersement;
+        String formattedTotal = df.format(difference);
+        System.out.println("Total Montant : " + difference);
+        
+      
+
+        // Ajout de la cellule contenant la valeur du total
+        PdfPCell valueCell1 = new PdfPCell(new Phrase("Total : "+ totalLivraison, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
+        valueCell1.setHorizontalAlignment(Element.ALIGN_CENTER);
+        valueCell1.setFixedHeight(20f);
+        valueCell1.setColspan(3);
+        mainTable.addCell(valueCell1);
+        PdfPCell valueCell2 = new PdfPCell(new Phrase("Total : "+ totalVersement, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
+        valueCell2.setHorizontalAlignment(Element.ALIGN_CENTER);
+        valueCell2.setFixedHeight(20f);
+        valueCell2.setColspan(3);
+        mainTable.addCell(valueCell2);
+
+        // Ajout de la cellule contenant la valeur du total
+        PdfPCell valueCell = new PdfPCell(new Phrase("Situation : "+ formattedTotal, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
+        valueCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        valueCell.setFixedHeight(20f);
+        valueCell.setColspan(6);
+        mainTable.addCell(valueCell);
+
+        document.add(mainTable);
+        document.close();
+
+        printPDF("Situation_de_fournisseur_" + fourni + ".pdf");
+    }
+
+
+   public void createPdfSituationMonth(String client, Date Start,Date END, JTable T) throws FileNotFoundException, DocumentException, PrinterException, IOException  {
+    SimpleDateFormat sdf = new SimpleDateFormat("dd-MMMM-yyyy", Locale.FRANCE);
+    String startDateStr = sdf.format(Start);
+    String endDateStr = sdf.format(END);
+    Document document = new Document();
+        document.setMargins(20, 20, 10, 20);
+        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream("Situation_de_client_" + client + " de mois "+startDateStr+" à "+endDateStr+".pdf"));
+
+        document.open();
+        Paragraph paragraph = new Paragraph("ENTREPRISE GHILASS GLACE", FontFactory.getFont(FontFactory.HELVETICA_BOLDOBLIQUE, 14));
+        paragraph.setAlignment(Element.ALIGN_CENTER); // Alignement au centre
+        
+        document.add(paragraph);
+        document.add(new Paragraph("\n"));
+        PdfPTable mainTable = new PdfPTable(6);
+        mainTable.setWidthPercentage(90);
+        float[] columnWidths = {15f, 45f, 35f, 15f, 45f, 35f}; // Par exemple, définir les largeurs de chaque colonne
+        mainTable.setWidths(columnWidths);
+        // Titre du fournisseur
+        Paragraph titleParagraph = new Paragraph();
+        titleParagraph.add(new Phrase("SITUATION DU CLIENT ", FontFactory.getFont(FontFactory.HELVETICA, 12)));
+        Chunk clientChunk = new Chunk(client+" DE MOIS "+startDateStr+" A "+endDateStr, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+        titleParagraph.add(clientChunk);
+        titleParagraph.setAlignment(Element.ALIGN_CENTER);
+        // Création de la cellule pour le titre du fournisseur
+        PdfPCell titleCell = new PdfPCell(titleParagraph);
+        titleCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        titleCell.setFixedHeight(20f);
+        titleCell.setColspan(6); // Fusionner les six colonnes
+        mainTable.addCell(titleCell);
+
+        // Ajouter l'étiquette "ACHAT" fusionnée sur les trois premières colonnes
+        PdfPCell achatCell = new PdfPCell(new Phrase("ACHAT"));
+        achatCell.setBorder(Rectangle.BOX);
+        achatCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        achatCell.setFixedHeight(20f);
+        achatCell.setColspan(3);
+        mainTable.addCell(achatCell);
+
+        // Ajouter l'étiquette "VERSEMENT" fusionnée sur les trois dernières colonnes
+        PdfPCell versementCell = new PdfPCell(new Phrase("VERSEMENT"));
+        versementCell.setBorder(Rectangle.BOX);
+        versementCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        versementCell.setFixedHeight(20f);
+        versementCell.setColspan(3);
+        mainTable.addCell(versementCell);
+
+      for (int i = 0; i < T.getColumnCount(); i++) {
+            PdfPCell columnHeaderCell = new PdfPCell(new Phrase(T.getColumnName(i)));
+            columnHeaderCell.setHorizontalAlignment(Element.ALIGN_CENTER); // Centrer le contenu horizontal
+            mainTable.addCell(columnHeaderCell);
+       }
+    // Ajouter les données de la JTable à la table PDF
+        for (int row = 0; row < T.getRowCount(); row++) {
+          for (int column = 0; column < T.getColumnCount(); column++) {
+              Object value = T.getValueAt(row, column);
+              String cellData = (value != null) ? String.valueOf(value) : ""; // Si la valeur est nulle, utiliser une chaîne vide
+              PdfPCell dataCell = new PdfPCell(new Phrase(cellData));
+              dataCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+              dataCell.setFixedHeight(20f);
+              mainTable.addCell(dataCell);
+          }
+      }
+        // Calculer et ajouter le total
+        DecimalFormat df = new DecimalFormat("0.00");
+        double totalLivraison = calculateColumnSum(mainTable, 1);
+        double totalVersement = calculateColumnSum(mainTable, 4);
+        double difference = totalLivraison - totalVersement;
+        String formattedTotal = df.format(difference);
+        System.out.println("Total Montant : " + difference);
+        
+      
+
+        // Ajout de la cellule contenant la valeur du total
+        PdfPCell valueCell1 = new PdfPCell(new Phrase("Total : "+ totalLivraison, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
+        valueCell1.setHorizontalAlignment(Element.ALIGN_CENTER);
+        valueCell1.setFixedHeight(20f);
+        valueCell1.setColspan(3);
+        mainTable.addCell(valueCell1);
+        PdfPCell valueCell2 = new PdfPCell(new Phrase("Total : "+ totalVersement, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
+        valueCell2.setHorizontalAlignment(Element.ALIGN_CENTER);
+        valueCell2.setFixedHeight(20f);
+        valueCell2.setColspan(3);
+        mainTable.addCell(valueCell2);
+
+        // Ajout de la cellule contenant la valeur du total
+        PdfPCell valueCell = new PdfPCell(new Phrase("Situation : "+ formattedTotal, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
+        valueCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        valueCell.setFixedHeight(20f);
+        valueCell.setColspan(6);
+        mainTable.addCell(valueCell);
+
+        document.add(mainTable);
+        document.close();
+
+        printPDF("Situation_de_client_" + client + " de mois "+startDateStr+" à "+endDateStr+".pdf");
+}
+  
+   public void createPdfSituationFMonth(String fourni, Date Start,Date END, JTable T) throws FileNotFoundException, DocumentException, PrinterException, IOException  {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MMMM-yyyy", Locale.FRANCE);
+        String startDateStr = sdf.format(Start);
+        String endDateStr = sdf.format(END);
+        Document document = new Document();
+        document.setMargins(20, 20, 10, 20);
+        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream("Situation_de_fournisseur_" + fourni + " de mois "+startDateStr+" à "+endDateStr+".pdf"));
+
+        document.open();
+        Paragraph paragraph = new Paragraph("ENTREPRISE GHILASS GLACE", FontFactory.getFont(FontFactory.HELVETICA_BOLDOBLIQUE, 14));
+        paragraph.setAlignment(Element.ALIGN_CENTER); // Alignement au centre
+        
+        document.add(paragraph);
+        document.add(new Paragraph("\n"));
+        PdfPTable mainTable = new PdfPTable(6);
+        mainTable.setWidthPercentage(90);
+        float[] columnWidths = {15f, 45f, 35f, 15f, 45f, 35f}; // Par exemple, définir les largeurs de chaque colonne
+        mainTable.setWidths(columnWidths);
+        // Titre du fournisseur
+        Paragraph titleParagraph = new Paragraph();
+        titleParagraph.add(new Phrase("SITUATION DU FOURNISSEUR ", FontFactory.getFont(FontFactory.HELVETICA, 12)));
+        Chunk clientChunk = new Chunk(fourni+" DE MOIS "+startDateStr+" A "+endDateStr, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+        titleParagraph.add(clientChunk);
+        titleParagraph.setAlignment(Element.ALIGN_CENTER);
+        // Création de la cellule pour le titre du fournisseur
+        PdfPCell titleCell = new PdfPCell(titleParagraph);
+        titleCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        titleCell.setFixedHeight(20f);
+        titleCell.setColspan(6); // Fusionner les six colonnes
+        mainTable.addCell(titleCell);
+
+        // Ajouter l'étiquette "ACHAT" fusionnée sur les trois premières colonnes
+        PdfPCell achatCell = new PdfPCell(new Phrase("ACHAT"));
+        achatCell.setBorder(Rectangle.BOX);
+        achatCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        achatCell.setFixedHeight(20f);
+        achatCell.setColspan(3);
+        mainTable.addCell(achatCell);
+
+        // Ajouter l'étiquette "VERSEMENT" fusionnée sur les trois dernières colonnes
+        PdfPCell versementCell = new PdfPCell(new Phrase("VERSEMENT"));
+        versementCell.setBorder(Rectangle.BOX);
+        versementCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        versementCell.setFixedHeight(20f);
+        versementCell.setColspan(3);
+        mainTable.addCell(versementCell);
+
+      for (int i = 0; i < T.getColumnCount(); i++) {
+            PdfPCell columnHeaderCell = new PdfPCell(new Phrase(T.getColumnName(i)));
+            columnHeaderCell.setHorizontalAlignment(Element.ALIGN_CENTER); // Centrer le contenu horizontal
+            mainTable.addCell(columnHeaderCell);
+       }
+    // Ajouter les données de la JTable à la table PDF
+        for (int row = 0; row < T.getRowCount(); row++) {
+          for (int column = 0; column < T.getColumnCount(); column++) {
+              Object value = T.getValueAt(row, column);
+              String cellData = (value != null) ? String.valueOf(value) : ""; // Si la valeur est nulle, utiliser une chaîne vide
+              PdfPCell dataCell = new PdfPCell(new Phrase(cellData));
+              dataCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+              dataCell.setFixedHeight(20f);
+              mainTable.addCell(dataCell);
+          }
+      }
+        // Calculer et ajouter le total
+        DecimalFormat df = new DecimalFormat("0.00");
+        double totalLivraison = calculateColumnSum(mainTable, 1);
+        double totalVersement = calculateColumnSum(mainTable, 4);
+        double difference = totalLivraison - totalVersement;
+        String formattedTotal = df.format(difference);
+        System.out.println("Total Montant : " + difference);
+        
+      
+
+        // Ajout de la cellule contenant la valeur du total
+        PdfPCell valueCell1 = new PdfPCell(new Phrase("Total : "+ totalLivraison, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
+        valueCell1.setHorizontalAlignment(Element.ALIGN_CENTER);
+        valueCell1.setFixedHeight(20f);
+        valueCell1.setColspan(3);
+        mainTable.addCell(valueCell1);
+        PdfPCell valueCell2 = new PdfPCell(new Phrase("Total : "+ totalVersement, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
+        valueCell2.setHorizontalAlignment(Element.ALIGN_CENTER);
+        valueCell2.setFixedHeight(20f);
+        valueCell2.setColspan(3);
+        mainTable.addCell(valueCell2);
+
+        // Ajout de la cellule contenant la valeur du total
+        PdfPCell valueCell = new PdfPCell(new Phrase("Situation : "+ formattedTotal, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
+        valueCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        valueCell.setFixedHeight(20f);
+        valueCell.setColspan(6);
+        mainTable.addCell(valueCell);
+
+        document.add(mainTable);
+        document.close();
+
+        printPDF("Situation_de_fournisseur_" + fourni + " de mois "+startDateStr+" à "+endDateStr+".pdf");
+         
+    }
+   private double calculateColumnSum(PdfPTable table, int columnIndex) {
+    double sum = 0.0;
+    // Parcourir chaque ligne de la table
+    for (int row = 0; row < table.getRows().size(); row++) {
+        // Obtenir la cellule dans la colonne spécifiée
+        PdfPCell cell = table.getRow(row).getCells()[columnIndex];
+        // Vérifier si la cellule a une phrase associée
+        if (cell != null && cell.getPhrase() != null) {
+            // Obtenir le contenu de la phrase de la cellule
+            String cellContent = cell.getPhrase().getContent();
+            // Vérifier si le contenu de la cellule peut être converti en montant
+            if (cellContent != null && cellContent.matches("-?\\d+(\\.\\d+)?")) {
+                double value = Double.parseDouble(cellContent);
+                // Ajouter la valeur à la somme totale
+                sum += value;
+            }
+        }
+    }
+    return sum;
+}
+    private PdfPTable generatePdfTable(JTable table, int startColumn, int endColumn) throws DocumentException {
+        PdfPTable pdfTable = new PdfPTable(3); // Assuming there are 4 columns in the table
+        pdfTable.setWidthPercentage(100);
+        addTableHeader1(pdfTable);
+
+        // Add data to the table
+        addTableData(pdfTable, table, startColumn, endColumn);
+        
+        return pdfTable;
+    }
+
+    private void addTableHeader1(PdfPTable table) {
+      
+        table.addCell("N°");
+        table.addCell("Montant");
+        table.addCell("Date");
+    }
+
+    private void addTableData(PdfPTable table, JTable sourceTable, int startColumn, int endColumn) {
+        for (int i = 0; i < sourceTable.getRowCount(); i++) {
+         
+            String num = getValueAsString(sourceTable.getValueAt(i, startColumn));
+            String montant = getValueAsString(sourceTable.getValueAt(i, startColumn + 1));
+            String date = getValueAsString(sourceTable.getValueAt(i, startColumn + 2));
+
+            
+            table.addCell(num);
+            table.addCell(montant);
+            table.addCell(date);
+        }
+    }
+
+    private String getValueAsString(Object value) {
+        return value != null ? value.toString() : "";
+    }
+   
+public void getSituationF(String fournisseur, JTable table) {
+    try {
+        // Requête SQL pour récupérer les achats et les versements pour le fournisseur donné
+        String query = "SELECT a.num AS num_achat, a.montantHT AS montant_achat, a.dateentree AS date_achat, v.num AS num_versement, v.versement AS montant_versement, v.date AS date_versement " +
+                       "FROM achat a LEFT JOIN versement v ON a.fournisseur = v.fournisseur " +
+                       "WHERE a.fournisseur = ?";
+
+        // Préparation de la requête avec le paramètre fourni
+        PreparedStatement statement = cnx.prepareStatement(query);
+        statement.setString(1, fournisseur);
+
+        // Exécution de la requête
+        ResultSet resultSet = statement.executeQuery();
+
+        // Création du modèle de table
+        DefaultTableModel model = new DefaultTableModel();
+        model.addColumn("Numéro Achat");
+        model.addColumn("Montant Achat");
+        model.addColumn("Date Achat");
+        model.addColumn("Numéro Versement");
+        model.addColumn("Montant Versement");
+        model.addColumn("Date Versement");
+
+        // Remplissage du modèle de table avec les données récupérées
+        while (resultSet.next()) {
+            String numAchat = resultSet.getString("num_achat");
+            String montantAchat = resultSet.getString("montant_achat");
+            String dateAchat = resultSet.getString("date_achat");
+            String numVersement = resultSet.getString("num_versement");
+            String montantVersement = resultSet.getString("montant_versement");
+            String dateVersement = resultSet.getString("date_versement");
+
+            // Ajout de la ligne au modèle de table
+            Vector row = new Vector();
+            row.add(numAchat);
+            row.add(montantAchat);
+            row.add(dateAchat);
+            row.add(numVersement);
+            row.add(montantVersement);
+            row.add(dateVersement);
+            model.addRow(row);
+        }
+
+        // Assignation du modèle de table à la JTable
+        table.setModel(model);
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+public void getSituation(JTable table) {
+    try {
+        // Requête SQL pour récupérer les achats et les versements pour le fournisseur donné
+        String query = "SELECT a.num AS num_achat, a.montant AS montant_achat, a.datesortie AS date_achat, v.num AS num_versement, v.versement AS montant_versement, v.date AS date_versement " +
+                       "FROM sortieclient a LEFT JOIN versement v ON a.client = v.client " ;
+                      
+
+        // Préparation de la requête avec le paramètre fourni
+        PreparedStatement statement = cnx.prepareStatement(query);
+        
+
+        // Exécution de la requête
+        ResultSet resultSet = statement.executeQuery();
+
+        // Création du modèle de table
+        DefaultTableModel model = new DefaultTableModel();
+        model.addColumn("Numéro Achat");
+        model.addColumn("Montant Achat");
+        model.addColumn("Date Achat");
+        model.addColumn("Numéro Versement");
+        model.addColumn("Montant Versement");
+        model.addColumn("Date Versement");
+
+        // Remplissage du modèle de table avec les données récupérées
+        while (resultSet.next()) {
+            String numAchat = resultSet.getString("num_achat");
+            String montantAchat = resultSet.getString("montant_achat");
+            String dateAchat = resultSet.getString("date_achat");
+            String numVersement = resultSet.getString("num_versement");
+            String montantVersement = resultSet.getString("montant_versement");
+            String dateVersement = resultSet.getString("date_versement");
+
+            // Ajout de la ligne au modèle de table
+            Vector row = new Vector();
+            row.add(numAchat);
+            row.add(montantAchat);
+            row.add(dateAchat);
+            row.add(numVersement);
+            row.add(montantVersement);
+            row.add(dateVersement);
+            model.addRow(row);
+        }
+
+        // Assignation du modèle de table à la JTable
+        table.setModel(model);
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+public void getSituationF(JTable T){
+
+                String query = "SELECT \n" +
+        "    fournisseur,"+                
+        "    num AS num_achat, \n" +
+        "    montantHT AS montant_achat, \n" +
+        "    dateentree AS date_achat,\n" +
+        "    NULL AS num_versement,\n" +
+        "    NULL AS montant_versement,\n" +
+        "    NULL AS date_versement\n" +
+        "FROM \n" +
+        "    entree\n" +
+        "\n" +
+        "UNION ALL\n" +
+        "\n" +
+        "SELECT \n" +
+        "    fournisseur,"+                
+        "    NULL AS num_achat, \n" +
+        "    NULL AS montant_achat, \n" +
+        "    NULL AS date_achat,\n" +
+        "    num AS num_versement,\n" +
+        "    versement AS montant_versement,\n" +
+        "    date AS date_versement\n" +
+        "FROM \n" +
+        "    versementf\n" +
+        "\n" +
+        "ORDER BY \n" +
+        "    CASE \n" +
+        "        WHEN date_achat IS NOT NULL THEN date_achat\n" +
+        "        ELSE date_versement \n" +
+        "    END";
          try{
             Statement statement = cnx.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
 
             // Création du modèle de table
             DefaultTableModel model = new DefaultTableModel();
-            model.addColumn("Client");
-            model.addColumn("N° Livraison");
+            model.addColumn("Fournisseur");
+            model.addColumn("N° Achat");
             model.addColumn("Montant");
             model.addColumn("Date");
             model.addColumn("N° Versement");
@@ -2276,10 +2948,10 @@ private void positionnerAlertes() {
             // Remplissage du modèle de table avec les données de la base de données
             while (resultSet.next()) {
                 Vector row = new Vector();
-                row.add(resultSet.getString("client"));
-                row.add(resultSet.getString("num_livraison"));
-                row.add(resultSet.getString("montant_livraison"));
-                row.add(resultSet.getString("date_livraison"));
+                row.add(resultSet.getString("fournisseur"));
+                row.add(resultSet.getString("num_achat"));
+                row.add(resultSet.getString("montant_achat"));
+                row.add(resultSet.getString("date_achat"));
                 row.add(resultSet.getString("num_versement"));
                 row.add(resultSet.getString("montant_versement"));
                 row.add(resultSet.getString("date_versement"));
@@ -2290,65 +2962,282 @@ private void positionnerAlertes() {
             e.printStackTrace();
         }
     }
-    public void getSituationByClient(JTable T, String client1, String client2) {
-    String query = "SELECT " +
-                   "    client," +
-                   "    num AS num_livraison, " +
-                   "    montant AS montant_livraison, " +
-                   "    datesortie AS date_livraison, " +
-                   "    NULL AS num_versement, " +
-                   "    NULL AS montant_versement, " +
-                   "    NULL AS date_versement " +
-                   "FROM " +
-                   "    sortieclient " +
-                   "WHERE " +
-                   "    client = ? " +
-                   "UNION ALL " +
-                   "SELECT " +
-                   "    client, " +
-                   "    NULL AS num_livraison, " +
-                   "    NULL AS montant_livraison, " +
-                   "    NULL AS date_livraison, " +
-                   "    num AS num_versement, " +
-                   "    versement AS montant_versement, " +
-                   "    date AS date_versement "+
-                   "FROM "+
-                   "    versement " +
-                   "WHERE "+
-                   "    client = ? "  +
-                   "ORDER BY " +
-                   "    CASE "+
-                   "        WHEN date_livraison IS NOT NULL THEN date_livraison " +
-                   "        ELSE date_versement "+
-                   "    END";
-
+    public void getSituationByClientAndDate(JTable T, String client, Date startDate, Date endDate) {
+    String query1 = "SELECT num AS num_livraison, montant AS montant_livraison, datesortie AS date_livraison " +
+                    "FROM sortieclient " +
+                    "WHERE client = ? AND datesortie BETWEEN ? AND ? ORDER BY num";
+    
+    String query2 = "SELECT num AS num_versement, versement AS montant_versement, date AS date_versement " +
+                    "FROM versement " +
+                    "WHERE client = ? AND date BETWEEN ? AND ? ORDER BY num";
+    
     try {
-        PreparedStatement statement = cnx.prepareStatement(query);
-        statement.setString(1, client1); // Définir la valeur pour le premier paramètre
-        statement.setString(2, client2); // Définir la valeur pour le deuxième paramètre
-        ResultSet resultSet = statement.executeQuery();
+        // Récupération des entrées de sortieclient
+        PreparedStatement statement1 = cnx.prepareStatement(query1);
+        statement1.setString(1, client);
+        statement1.setDate(2, new java.sql.Date(startDate.getTime()));
+        statement1.setDate(3, new java.sql.Date(endDate.getTime()));
+        ResultSet resultSet1 = statement1.executeQuery();
+
+        // Récupération des versements
+        PreparedStatement statement2 = cnx.prepareStatement(query2);
+        statement2.setString(1, client);
+        statement2.setDate(2, new java.sql.Date(startDate.getTime()));
+        statement2.setDate(3, new java.sql.Date(endDate.getTime()));
+        ResultSet resultSet2 = statement2.executeQuery();
 
         DefaultTableModel model = new DefaultTableModel();
-        model.addColumn("Client");
         model.addColumn("N° Livraison");
-        model.addColumn("Montant");
-        model.addColumn("Date");
+        model.addColumn("Montant Livraison");
+        model.addColumn("Date Livraison");
         model.addColumn("N° Versement");
-        model.addColumn("Versement");
-        model.addColumn("Date");
+        model.addColumn("Montant Versement");
+        model.addColumn("Date Versement");
 
-        while (resultSet.next()) {
+        // Remplissage des 3 premières colonnes avec les entrées de sortieclient
+        while (resultSet1.next()) {
             Vector row = new Vector();
-            row.add(resultSet.getString("client"));
-            row.add(resultSet.getString("num_livraison"));
-            row.add(resultSet.getString("montant_livraison"));
-            row.add(resultSet.getString("date_livraison"));
-            row.add(resultSet.getString("num_versement"));
-            row.add(resultSet.getString("montant_versement"));
-            row.add(resultSet.getString("date_versement"));
+            row.add(resultSet1.getString("num_livraison"));
+            row.add(resultSet1.getString("montant_livraison"));
+            row.add(resultSet1.getString("date_livraison"));
+            // Ajout de valeurs vides pour les colonnes de versement
+            row.add(""); // N° Versement
+            row.add(""); // Montant Versement
+            row.add(""); // Date Versement
             model.addRow(row);
         }
-        T.setModel(model);
+
+        // Remplissage des 3 dernières colonnes avec les enregistrements de versement
+        int rowCount = model.getRowCount(); // Nombre de lignes actuelles
+        int rowIndex = 0; // Indice de ligne
+        while (resultSet2.next()) {
+            if (rowIndex < rowCount) { // Assure que nous ne dépassons pas le nombre de lignes actuelles
+                model.setValueAt(resultSet2.getString("num_versement"), rowIndex, 3);
+                model.setValueAt(resultSet2.getString("montant_versement"), rowIndex, 4);
+                model.setValueAt(resultSet2.getString("date_versement"), rowIndex, 5);
+                rowIndex++; // Passage à la ligne suivante
+            } else { // Si nous dépassons le nombre de lignes actuelles, nous ajoutons une nouvelle ligne
+                Vector row = new Vector();
+                // Remplissage des 3 premières colonnes avec des valeurs vides
+                row.add(""); // N° Livraison
+                row.add(""); // Montant Livraison
+                row.add(""); // Date Livraison
+                row.add(resultSet2.getString("num_versement")); // N° Versement
+                row.add(resultSet2.getString("montant_versement")); // Montant Versement
+                row.add(resultSet2.getString("date_versement")); // Date Versement
+                model.addRow(row);
+            }
+        }
+
+        T.setModel(model); // Définir le modèle de table dans la JTable
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+    public void getSituationByFournisseurAndDate(JTable T, String fourni, Date Start, Date End) {
+    String query1 = "SELECT num AS num_achat, montantHT AS montant_achat, dateentree AS date_achat " +
+                    "FROM entree " +
+                    "WHERE fournisseur = ? AND dateentree BETWEEN ? AND ? ORDER BY num";
+    
+    String query2 = "SELECT num AS num_versement, versement AS montant_versement, date AS date_versement " +
+                    "FROM versementf " +
+                    "WHERE fournisseur = ? AND date BETWEEN ? AND ? ORDER BY num";
+    
+    try {
+        // Récupération des entrées de sortieclient
+        PreparedStatement statement1 = cnx.prepareStatement(query1);
+        statement1.setString(1, fourni);
+        statement1.setDate(2, new java.sql.Date(Start.getTime()));
+        statement1.setDate(3, new java.sql.Date(End.getTime()));
+        ResultSet resultSet1 = statement1.executeQuery();
+
+        // Récupération des versements
+        PreparedStatement statement2 = cnx.prepareStatement(query2);
+        statement2.setString(1, fourni);
+        statement2.setDate(2, new java.sql.Date(Start.getTime()));
+        statement2.setDate(3, new java.sql.Date(End.getTime()));
+        ResultSet resultSet2 = statement2.executeQuery();
+
+        DefaultTableModel model = new DefaultTableModel();
+        model.addColumn("N° Liv");
+        model.addColumn("Montant");
+        model.addColumn("Date");
+        model.addColumn("N° Ver");
+        model.addColumn("Montant");
+        model.addColumn("Date");
+
+        // Remplissage des 3 premières colonnes avec les entrées de sortieclient
+        while (resultSet1.next()) {
+            Vector row = new Vector();
+            row.add(resultSet1.getString("num_achat"));
+            row.add(resultSet1.getString("montant_achat"));
+            row.add(resultSet1.getString("date_achat"));
+            // Ajout de valeurs vides pour les colonnes de versement
+            row.add(""); // N° Versement
+            row.add(""); // Montant Versement
+            row.add(""); // Date Versement
+            model.addRow(row);
+        }
+
+        // Remplissage des 3 dernières colonnes avec les enregistrements de versement
+        int rowCount = model.getRowCount(); // Nombre de lignes actuelles
+        int rowIndex = 0; // Indice de ligne
+        while (resultSet2.next()) {
+            if (rowIndex < rowCount) { // Assure que nous ne dépassons pas le nombre de lignes actuelles
+                model.setValueAt(resultSet2.getString("num_versement"), rowIndex, 3);
+                model.setValueAt(resultSet2.getString("montant_versement"), rowIndex, 4);
+                model.setValueAt(resultSet2.getString("date_versement"), rowIndex, 5);
+                rowIndex++; // Passage à la ligne suivante
+            } else { // Si nous dépassons le nombre de lignes actuelles, nous ajoutons une nouvelle ligne
+                Vector row = new Vector();
+                // Remplissage des 3 premières colonnes avec des valeurs vides
+                row.add(""); // N° Livraison
+                row.add(""); // Montant Livraison
+                row.add(""); // Date Livraison
+                row.add(resultSet2.getString("num_versement")); // N° Versement
+                row.add(resultSet2.getString("montant_versement")); // Montant Versement
+                row.add(resultSet2.getString("date_versement")); // Date Versement
+                model.addRow(row);
+            }
+        }
+
+        T.setModel(model); // Définir le modèle de table dans la JTable
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+    public void getSituationByClient(JTable T, String client) {
+    String query1 = "SELECT num AS num_livraison, montant AS montant_livraison, datesortie AS date_livraison " +
+                    "FROM sortieclient " +
+                    "WHERE client = ? ORDER BY num";
+    
+    String query2 = "SELECT num AS num_versement, versement AS montant_versement, date AS date_versement " +
+                    "FROM versement " +
+                    "WHERE client = ? ORDER BY num";
+    
+    try {
+        // Récupération des entrées de sortieclient
+        PreparedStatement statement1 = cnx.prepareStatement(query1);
+        statement1.setString(1, client);
+        ResultSet resultSet1 = statement1.executeQuery();
+
+        // Récupération des versements
+        PreparedStatement statement2 = cnx.prepareStatement(query2);
+        statement2.setString(1, client);
+        ResultSet resultSet2 = statement2.executeQuery();
+
+        DefaultTableModel model = new DefaultTableModel();
+        model.addColumn("N° Liv");
+        model.addColumn("Montant");
+        model.addColumn("Date");
+        model.addColumn("N° Ver");
+        model.addColumn("Montant");
+        model.addColumn("Date");
+
+        // Remplissage des 3 premières colonnes avec les entrées de sortieclient
+        while (resultSet1.next()) {
+            Vector row = new Vector();
+            row.add(resultSet1.getString("num_livraison"));
+            row.add(resultSet1.getString("montant_livraison"));
+            row.add(resultSet1.getString("date_livraison"));
+            // Ajout de valeurs vides pour les colonnes de versement
+            row.add(""); // N° Versement
+            row.add(""); // Montant Versement
+            row.add(""); // Date Versement
+            model.addRow(row);
+        }
+
+        // Remplissage des 3 dernières colonnes avec les enregistrements de versement
+        int rowCount = model.getRowCount(); // Nombre de lignes actuelles
+        int rowIndex = 0; // Indice de ligne
+        while (resultSet2.next()) {
+            if (rowIndex < rowCount) { // Assure que nous ne dépassons pas le nombre de lignes actuelles
+                model.setValueAt(resultSet2.getString("num_versement"), rowIndex, 3);
+                model.setValueAt(resultSet2.getString("montant_versement"), rowIndex, 4);
+                model.setValueAt(resultSet2.getString("date_versement"), rowIndex, 5);
+                rowIndex++; // Passage à la ligne suivante
+            } else { // Si nous dépassons le nombre de lignes actuelles, nous ajoutons une nouvelle ligne
+                Vector row = new Vector();
+                // Remplissage des 3 premières colonnes avec des valeurs vides
+                row.add(""); // N° Livraison
+                row.add(""); // Montant Livraison
+                row.add(""); // Date Livraison
+                row.add(resultSet2.getString("num_versement")); // N° Versement
+                row.add(resultSet2.getString("montant_versement")); // Montant Versement
+                row.add(resultSet2.getString("date_versement")); // Date Versement
+                model.addRow(row);
+            }
+        }
+
+        T.setModel(model); // Définir le modèle de table dans la JTable
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+public void getSituationByFournisseur(JTable T, String fourni1) {
+    String query1 = "SELECT num AS num_achat, montantHT AS montant_achat, dateentree AS date_achat " +
+                    "FROM entree " +
+                    "WHERE fournisseur = ? ORDER BY num";
+    
+    String query2 = "SELECT num AS num_versement, versement AS montant_versement, date AS date_versement " +
+                    "FROM versementf " +
+                    "WHERE fournisseur = ? ORDER BY num";
+    
+    try {
+        // Récupération des entrées de sortieclient
+        PreparedStatement statement1 = cnx.prepareStatement(query1);
+        statement1.setString(1, fourni1);
+        ResultSet resultSet1 = statement1.executeQuery();
+
+        // Récupération des versements
+        PreparedStatement statement2 = cnx.prepareStatement(query2);
+        statement2.setString(1, fourni1);
+        ResultSet resultSet2 = statement2.executeQuery();
+
+        DefaultTableModel model = new DefaultTableModel();
+        model.addColumn("N° Achat");
+        model.addColumn("Montant");
+        model.addColumn("Date");
+        model.addColumn("N° Ver");
+        model.addColumn("Montant");
+        model.addColumn("Date");
+
+        // Remplissage des 3 premières colonnes avec les entrées de sortieclient
+        while (resultSet1.next()) {
+            Vector row = new Vector();
+            row.add(resultSet1.getString("num_achat"));
+            row.add(resultSet1.getString("montant_achat"));
+            row.add(resultSet1.getString("date_achat"));
+            // Ajout de valeurs vides pour les colonnes de versement
+            row.add(""); // N° Versement
+            row.add(""); // Montant Versement
+            row.add(""); // Date Versement
+            model.addRow(row);
+        }
+
+        // Remplissage des 3 dernières colonnes avec les enregistrements de versement
+        int rowCount = model.getRowCount(); // Nombre de lignes actuelles
+        int rowIndex = 0; // Indice de ligne
+        while (resultSet2.next()) {
+            if (rowIndex < rowCount) { // Assure que nous ne dépassons pas le nombre de lignes actuelles
+                model.setValueAt(resultSet2.getString("num_versement"), rowIndex, 3);
+                model.setValueAt(resultSet2.getString("montant_versement"), rowIndex, 4);
+                model.setValueAt(resultSet2.getString("date_versement"), rowIndex, 5);
+                rowIndex++; // Passage à la ligne suivante
+            } else { // Si nous dépassons le nombre de lignes actuelles, nous ajoutons une nouvelle ligne
+                Vector row = new Vector();
+                // Remplissage des 3 premières colonnes avec des valeurs vides
+                row.add(""); // N° Livraison
+                row.add(""); // Montant Livraison
+                row.add(""); // Date Livraison
+                row.add(resultSet2.getString("num_versement")); // N° Versement
+                row.add(resultSet2.getString("montant_versement")); // Montant Versement
+                row.add(resultSet2.getString("date_versement")); // Date Versement
+                model.addRow(row);
+            }
+        }
+
+        T.setModel(model); // Définir le modèle de table dans la JTable
     } catch (SQLException e) {
         e.printStackTrace();
     }

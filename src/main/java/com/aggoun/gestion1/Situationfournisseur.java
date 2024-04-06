@@ -4,6 +4,23 @@
  */
 package com.aggoun.gestion1;
 
+import com.aggoun.gestion1.DB.DataBase;
+import com.itextpdf.text.DocumentException;
+import java.awt.Color;
+import java.awt.print.PrinterException;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.text.DateFormatSymbols;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumnModel;
+
 /**
  *
  * @author Dual Computer
@@ -13,10 +30,37 @@ public class Situationfournisseur extends javax.swing.JFrame {
     /**
      * Creates new form Situationfournisseur
      */
-    public Situationfournisseur() {
+    DataBase db = new DataBase();
+    public Situationfournisseur() throws SQLException {
         initComponents();
+        db.ConnectionToDataBase(); 
+        setLocationRelativeTo(null);
+        parametre();
     }
-
+    private void parametre() throws SQLException{
+        CBX_FOURNISSEUR.removeAllItems();
+        db.getAllFournisseur(CBX_FOURNISSEUR);
+         DefaultTableCellRenderer centre = new DefaultTableCellRenderer();
+        centre.setHorizontalAlignment(DefaultTableCellRenderer.CENTER);
+        for (int i=0;i<7;i++){
+            TABLE_SITUATIONF.getColumnModel().getColumn(i).setCellRenderer(centre);
+        } 
+        TABLE_SITUATIONF.setRowHeight(30);
+        TableColumnModel colummodel= TABLE_SITUATIONF.getColumnModel();
+        colummodel.getColumn(0).setPreferredWidth(80);
+        colummodel.getColumn(1).setPreferredWidth(40);
+        colummodel.getColumn(2).setPreferredWidth(80);
+        colummodel.getColumn(3).setPreferredWidth(80);
+        colummodel.getColumn(4).setPreferredWidth(40);
+        colummodel.getColumn(5).setPreferredWidth(80);
+        colummodel.getColumn(6).setPreferredWidth(80);
+       
+        DefaultTableCellRenderer head = new DefaultTableCellRenderer();
+        head.setHorizontalAlignment(JLabel.CENTER);
+        head.setBackground(new Color(252,248,3));
+        TABLE_SITUATIONF.getTableHeader().setDefaultRenderer(head);
+        db.getSituationF(TABLE_SITUATIONF);
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -27,20 +71,121 @@ public class Situationfournisseur extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
+        BTN_IMPRIMER_SITUATIONF = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        TABLE_SITUATIONF = new javax.swing.JTable();
+        BTN_CHERCHE_SITUATIONF = new javax.swing.JButton();
+        CHECK_DATE_SITUATIONF = new javax.swing.JCheckBox();
+        CBX_FOURNISSEUR = new javax.swing.JComboBox<>();
+        jLabel11 = new javax.swing.JLabel();
+        DATE_START = new com.toedter.calendar.JDateChooser();
+        DATE_END = new com.toedter.calendar.JDateChooser();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jPanel1.setBackground(new java.awt.Color(204, 204, 204));
+
+        BTN_IMPRIMER_SITUATIONF.setBackground(new java.awt.Color(0, 153, 153));
+        BTN_IMPRIMER_SITUATIONF.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        BTN_IMPRIMER_SITUATIONF.setForeground(new java.awt.Color(0, 0, 0));
+        BTN_IMPRIMER_SITUATIONF.setText("Imprimer");
+        BTN_IMPRIMER_SITUATIONF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BTN_IMPRIMER_SITUATIONFActionPerformed(evt);
+            }
+        });
+
+        TABLE_SITUATIONF.setBackground(new java.awt.Color(0, 204, 204));
+        TABLE_SITUATIONF.setForeground(new java.awt.Color(0, 0, 0));
+        TABLE_SITUATIONF.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Client", "N° Livraison", "Montan Livraison", "Date livraison", "N° Versement", "Montant Versement", "Date versement"
+            }
+        ));
+        jScrollPane1.setViewportView(TABLE_SITUATIONF);
+
+        BTN_CHERCHE_SITUATIONF.setText("jButton1");
+        BTN_CHERCHE_SITUATIONF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BTN_CHERCHE_SITUATIONFActionPerformed(evt);
+            }
+        });
+
+        CHECK_DATE_SITUATIONF.setBackground(new java.awt.Color(204, 204, 204));
+        CHECK_DATE_SITUATIONF.setForeground(new java.awt.Color(0, 0, 0));
+        CHECK_DATE_SITUATIONF.setText("Par date");
+
+        CBX_FOURNISSEUR.setBackground(new java.awt.Color(102, 153, 255));
+        CBX_FOURNISSEUR.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
+        CBX_FOURNISSEUR.setForeground(new java.awt.Color(51, 51, 51));
+        CBX_FOURNISSEUR.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        CBX_FOURNISSEUR.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                CBX_FOURNISSEURItemStateChanged(evt);
+            }
+        });
+        CBX_FOURNISSEUR.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                CBX_FOURNISSEURActionPerformed(evt);
+            }
+        });
+
+        jLabel11.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
+        jLabel11.setForeground(new java.awt.Color(0, 0, 204));
+        jLabel11.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel11.setText("Fournisseur :");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 663, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 899, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                .addComponent(CBX_FOURNISSEUR, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(DATE_START, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(DATE_END, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(CHECK_DATE_SITUATIONF, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(BTN_CHERCHE_SITUATIONF, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(BTN_IMPRIMER_SITUATIONF)))))
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 430, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(CBX_FOURNISSEUR, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(CHECK_DATE_SITUATIONF)
+                            .addComponent(BTN_CHERCHE_SITUATIONF)))
+                    .addComponent(DATE_START, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(DATE_END, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 367, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addComponent(BTN_IMPRIMER_SITUATIONF)
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -56,6 +201,69 @@ public class Situationfournisseur extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void BTN_IMPRIMER_SITUATIONFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_IMPRIMER_SITUATIONFActionPerformed
+        
+         Object client = CBX_FOURNISSEUR.getSelectedItem();
+if (client != null) {
+    String cli = client.toString();
+    
+    if (CHECK_DATE_SITUATIONF.isSelected()) {
+        Date selectedDate = DATE_START.getDate(); // Récupérer la date sélectionnée
+        Date selectedDate1 = DATE_END.getDate();
+        if (selectedDate != null && selectedDate1 != null) {
+            
+            try {
+                db.createPdfSituationFMonth(cli, selectedDate,selectedDate1, TABLE_SITUATIONF);
+            } catch (IOException | PrinterException ex) {
+                Logger.getLogger(Situationclient.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (DocumentException ex) {
+                Logger.getLogger(Situationclient.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            // Gérer le cas où aucune date n'est sélectionnée
+        }
+    } else {
+        try {
+            db.createPdfSituationF(cli, TABLE_SITUATIONF);
+        } catch (IOException | PrinterException ex) {
+            Logger.getLogger(Situationclient.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (DocumentException ex) {
+            Logger.getLogger(Situationclient.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+} else {
+    // Gérer le cas où aucun client n'est sélectionné
+}
+    }//GEN-LAST:event_BTN_IMPRIMER_SITUATIONFActionPerformed
+
+    private void BTN_CHERCHE_SITUATIONFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_CHERCHE_SITUATIONFActionPerformed
+        Object fourni = CBX_FOURNISSEUR.getSelectedItem();
+        if (fourni != null) {
+            String cli = fourni.toString();
+            if (CHECK_DATE_SITUATIONF.isSelected()) {
+                Date dateStart = DATE_START.getDate();
+                Date dateEnd = DATE_END.getDate();
+
+                // Vérification si dateStart n'est pas null avant d'exécuter la méthode
+                if (dateStart != null && dateEnd != null) {
+                    db.getSituationByFournisseurAndDate(TABLE_SITUATIONF, cli,dateStart, dateEnd);
+                } else {
+                  JOptionPane.showMessageDialog(null, "tu dois choisir les date start et end");
+                }
+            } else {
+                db.getSituationByFournisseur(TABLE_SITUATIONF, cli);
+            }
+        }
+    }//GEN-LAST:event_BTN_CHERCHE_SITUATIONFActionPerformed
+
+    private void CBX_FOURNISSEURItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_CBX_FOURNISSEURItemStateChanged
+
+    }//GEN-LAST:event_CBX_FOURNISSEURItemStateChanged
+
+    private void CBX_FOURNISSEURActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CBX_FOURNISSEURActionPerformed
+
+    }//GEN-LAST:event_CBX_FOURNISSEURActionPerformed
 
     /**
      * @param args the command line arguments
@@ -87,12 +295,25 @@ public class Situationfournisseur extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Situationfournisseur().setVisible(true);
+                try {
+                    new Situationfournisseur().setVisible(true);
+                } catch (SQLException ex) {
+                    Logger.getLogger(Situationfournisseur.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton BTN_CHERCHE_SITUATIONF;
+    private javax.swing.JButton BTN_IMPRIMER_SITUATIONF;
+    private javax.swing.JComboBox<String> CBX_FOURNISSEUR;
+    private javax.swing.JCheckBox CHECK_DATE_SITUATIONF;
+    private com.toedter.calendar.JDateChooser DATE_END;
+    private com.toedter.calendar.JDateChooser DATE_START;
+    private javax.swing.JTable TABLE_SITUATIONF;
+    private javax.swing.JLabel jLabel11;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
 }

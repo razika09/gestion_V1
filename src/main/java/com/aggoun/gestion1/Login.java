@@ -26,7 +26,7 @@ public class Login extends javax.swing.JFrame {
     public Login() throws SQLException {
         initComponents();
         db.ConnectionToDataBase();
-       
+       setLocationRelativeTo(null);
     }
 
     /**

@@ -28,6 +28,7 @@ public class Parametre extends javax.swing.JFrame {
     DataBase db = new DataBase();
     public Parametre() throws SQLException {
         initComponents();
+        setLocationRelativeTo(null);
         db.ConnectionToDataBase();
         db.getAdresseCnrNifTvaDossier(TXT_ADRESSE,TXT_CNR,TXT_NIF,SPIN_TVA_LIVR,LABEL_TRAVAIL);
     }

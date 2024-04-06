@@ -82,6 +82,7 @@ public class ACCEUIL1 extends javax.swing.JFrame {
         parametre_table_stock();
     }
     public final void parametrage() throws SQLException{
+        db.allStockAlerte(TABLE_ALERTE_STOCK);
          CBX_FOURNISSEUR_VERSEMENT.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -102,7 +103,7 @@ public class ACCEUIL1 extends javax.swing.JFrame {
             }
             }
         });
-       db.allStockAlerte(TABLE_ALERTE_STOCK);
+       
         CBX_TYPE_MODIFIER_ACHAT.setSelectedItem("num");
         CBX_TYPE_MODIFIER_LIVR.setSelectedItem("num");
         db.allAchat(TABLE_ACHAT_MODIFIER);
@@ -1229,11 +1230,16 @@ TABLE_LIVR_MODIFIER.getColumnModel().getColumn(7).setCellRenderer(dateRenderer);
         jScrollPane13 = new javax.swing.JScrollPane();
         TABLE_ALERTE_STOCK = new javax.swing.JTable();
         jPanel5 = new javax.swing.JPanel();
-        BTN_OPEN_PARAMETRE = new javax.swing.JButton();
+        jPanel8 = new javax.swing.JPanel();
         jLabel16 = new javax.swing.JLabel();
-        BTN_OPEN_PARAMETRE1 = new javax.swing.JButton();
-        BTN_OPEN_PARAMETRE2 = new javax.swing.JButton();
+        BTN_OPEN_PARAMETRE = new javax.swing.JButton();
+        jPanel9 = new javax.swing.JPanel();
         jLabel32 = new javax.swing.JLabel();
+        BTN_OPEN_PARAMETRE_SIT = new javax.swing.JButton();
+        BTN_OPEN_PARAMETRE_SITF = new javax.swing.JButton();
+        jPanel10 = new javax.swing.JPanel();
+        jLabel67 = new javax.swing.JLabel();
+        BTN_OPEN_PARAMETRE_LIVRAISON = new javax.swing.JButton();
         PRODUIT = new javax.swing.JPanel();
         jPanel11 = new javax.swing.JPanel();
         jLabel22 = new javax.swing.JLabel();
@@ -1544,7 +1550,7 @@ TABLE_LIVR_MODIFIER.getColumnModel().getColumn(7).setCellRenderer(dateRenderer);
             .addGroup(jPanel16Layout.createSequentialGroup()
                 .addGap(500, 500, 500)
                 .addComponent(jLabel68, javax.swing.GroupLayout.PREFERRED_SIZE, 358, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(184, Short.MAX_VALUE))
+                .addContainerGap(182, Short.MAX_VALUE))
         );
         jPanel16Layout.setVerticalGroup(
             jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1589,6 +1595,14 @@ TABLE_LIVR_MODIFIER.getColumnModel().getColumn(7).setCellRenderer(dateRenderer);
         jPanel5.setBackground(new java.awt.Color(204, 204, 204));
         jPanel5.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
+        jPanel8.setBackground(new java.awt.Color(204, 204, 204));
+        jPanel8.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+
+        jLabel16.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
+        jLabel16.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel16.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel16.setText("Parametrage");
+
         BTN_OPEN_PARAMETRE.setBackground(new java.awt.Color(255, 255, 0));
         BTN_OPEN_PARAMETRE.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         BTN_OPEN_PARAMETRE.setForeground(new java.awt.Color(51, 51, 51));
@@ -1599,70 +1613,146 @@ TABLE_LIVR_MODIFIER.getColumnModel().getColumn(7).setCellRenderer(dateRenderer);
             }
         });
 
-        jLabel16.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
-        jLabel16.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel16.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel16.setText("Parametrage");
+        javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
+        jPanel8.setLayout(jPanel8Layout);
+        jPanel8Layout.setHorizontalGroup(
+            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel8Layout.createSequentialGroup()
+                .addGap(43, 43, 43)
+                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel8Layout.createSequentialGroup()
+                        .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(22, 22, 22))
+                    .addComponent(BTN_OPEN_PARAMETRE, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(38, Short.MAX_VALUE))
+        );
+        jPanel8Layout.setVerticalGroup(
+            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel8Layout.createSequentialGroup()
+                .addGap(20, 20, 20)
+                .addComponent(jLabel16)
+                .addGap(18, 18, 18)
+                .addComponent(BTN_OPEN_PARAMETRE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
 
-        BTN_OPEN_PARAMETRE1.setBackground(new java.awt.Color(255, 255, 0));
-        BTN_OPEN_PARAMETRE1.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
-        BTN_OPEN_PARAMETRE1.setForeground(new java.awt.Color(51, 51, 51));
-        BTN_OPEN_PARAMETRE1.setText("Situation client");
-        BTN_OPEN_PARAMETRE1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BTN_OPEN_PARAMETRE1ActionPerformed(evt);
-            }
-        });
-
-        BTN_OPEN_PARAMETRE2.setBackground(new java.awt.Color(255, 255, 0));
-        BTN_OPEN_PARAMETRE2.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
-        BTN_OPEN_PARAMETRE2.setForeground(new java.awt.Color(51, 51, 51));
-        BTN_OPEN_PARAMETRE2.setText("Situation Fournisseur");
-        BTN_OPEN_PARAMETRE2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BTN_OPEN_PARAMETRE2ActionPerformed(evt);
-            }
-        });
+        jPanel9.setBackground(new java.awt.Color(204, 204, 204));
+        jPanel9.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
         jLabel32.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
         jLabel32.setForeground(new java.awt.Color(0, 0, 0));
         jLabel32.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel32.setText("Situation");
 
+        BTN_OPEN_PARAMETRE_SIT.setBackground(new java.awt.Color(255, 255, 0));
+        BTN_OPEN_PARAMETRE_SIT.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        BTN_OPEN_PARAMETRE_SIT.setForeground(new java.awt.Color(51, 51, 51));
+        BTN_OPEN_PARAMETRE_SIT.setText("Situation client");
+        BTN_OPEN_PARAMETRE_SIT.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BTN_OPEN_PARAMETRE_SITActionPerformed(evt);
+            }
+        });
+
+        BTN_OPEN_PARAMETRE_SITF.setBackground(new java.awt.Color(255, 255, 0));
+        BTN_OPEN_PARAMETRE_SITF.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        BTN_OPEN_PARAMETRE_SITF.setForeground(new java.awt.Color(51, 51, 51));
+        BTN_OPEN_PARAMETRE_SITF.setText("Situation Fournisseur");
+        BTN_OPEN_PARAMETRE_SITF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BTN_OPEN_PARAMETRE_SITFActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
+        jPanel9.setLayout(jPanel9Layout);
+        jPanel9Layout.setHorizontalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(BTN_OPEN_PARAMETRE_SIT, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(BTN_OPEN_PARAMETRE_SITF)
+                    .addGroup(jPanel9Layout.createSequentialGroup()
+                        .addGap(21, 21, 21)
+                        .addComponent(jLabel32, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(38, 38, 38))
+        );
+        jPanel9Layout.setVerticalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel9Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel32)
+                .addGap(18, 18, 18)
+                .addComponent(BTN_OPEN_PARAMETRE_SIT)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 20, Short.MAX_VALUE)
+                .addComponent(BTN_OPEN_PARAMETRE_SITF)
+                .addContainerGap())
+        );
+
+        jPanel10.setBackground(new java.awt.Color(204, 204, 204));
+        jPanel10.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+
+        jLabel67.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
+        jLabel67.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel67.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel67.setText("Livraison/Achat");
+
+        BTN_OPEN_PARAMETRE_LIVRAISON.setBackground(new java.awt.Color(255, 255, 0));
+        BTN_OPEN_PARAMETRE_LIVRAISON.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        BTN_OPEN_PARAMETRE_LIVRAISON.setForeground(new java.awt.Color(51, 51, 51));
+        BTN_OPEN_PARAMETRE_LIVRAISON.setText("Livraison et Achat");
+        BTN_OPEN_PARAMETRE_LIVRAISON.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BTN_OPEN_PARAMETRE_LIVRAISONActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
+        jPanel10.setLayout(jPanel10Layout);
+        jPanel10Layout.setHorizontalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addGap(61, 61, 61)
+                .addComponent(jLabel67, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(BTN_OPEN_PARAMETRE_LIVRAISON, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(40, 40, 40))
+        );
+        jPanel10Layout.setVerticalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel67)
+                .addGap(18, 18, 18)
+                .addComponent(BTN_OPEN_PARAMETRE_LIVRAISON)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
-                .addContainerGap(57, Short.MAX_VALUE)
+                .addContainerGap()
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                        .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(72, 72, 72))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                        .addComponent(jLabel32, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(72, 72, 72))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(BTN_OPEN_PARAMETRE1, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(BTN_OPEN_PARAMETRE, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(BTN_OPEN_PARAMETRE2))
-                        .addGap(50, 50, 50))))
+                    .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel9, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel16)
+                .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(BTN_OPEN_PARAMETRE)
+                .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jLabel32)
-                .addGap(18, 18, 18)
-                .addComponent(BTN_OPEN_PARAMETRE1)
-                .addGap(18, 18, 18)
-                .addComponent(BTN_OPEN_PARAMETRE2)
-                .addContainerGap(90, Short.MAX_VALUE))
+                .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout ACCEUILLayout = new javax.swing.GroupLayout(ACCEUIL);
@@ -1682,11 +1772,12 @@ TABLE_LIVR_MODIFIER.getColumnModel().getColumn(7).setCellRenderer(dateRenderer);
             ACCEUILLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ACCEUILLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(ACCEUILLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel16, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(ACCEUILLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(ACCEUILLayout.createSequentialGroup()
+                        .addComponent(jPanel16, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(40, Short.MAX_VALUE))
         );
 
@@ -2752,7 +2843,7 @@ TABLE_LIVR_MODIFIER.getColumnModel().getColumn(7).setCellRenderer(dateRenderer);
                 .addGroup(jPanel19Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel65, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(TXT_NIF_FOURNISSEUR, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 75, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 110, Short.MAX_VALUE)
                 .addGroup(jPanel19Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(BTN_AJOUT_FOURNISSEUR)
                     .addComponent(BTN_SUPPRIMER_FOURNISSEUR)
@@ -2830,7 +2921,7 @@ TABLE_LIVR_MODIFIER.getColumnModel().getColumn(7).setCellRenderer(dateRenderer);
                 .addGroup(FOURNISSEURLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jPanel19, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jScrollPane9))
-                .addContainerGap(87, Short.MAX_VALUE))
+                .addContainerGap(52, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Fournisseur", FOURNISSEUR);
@@ -5774,14 +5865,14 @@ TABLE_LIVR_MODIFIER.getColumnModel().getColumn(7).setCellRenderer(dateRenderer);
                     db.allClientProduitTable(TABLE_CLIENT_PRIX);
                     CBX_CLIENT_LIVR.removeAllItems();
                     db.getAllClient(CBX_CLIENT_LIVR);
-
+                    
                     CBX_CLIENT_VERSEMENT.removeAllItems();
                     db.getAllClient(CBX_CLIENT_VERSEMENT);
                     CBX_CLIENT_RECHERCHE_LIVR.removeAllItems();
                     db.getAllClient(CBX_CLIENT_RECHERCHE_LIVR);
                     CBX_CLIENT_PRIX.removeAllItems();
                     db.getAllClient(CBX_CLIENT_PRIX);
-
+                    db.allLivraison(TABLE_LIVR_MODIFIER);
                     int IDMAX = db.getIDMaxClient();
                     TXT_ID_CLIENT.setText(String.valueOf(IDMAX+1));
                     TXT_NOM_CLIENT.setText("");
@@ -5987,7 +6078,7 @@ TABLE_LIVR_MODIFIER.getColumnModel().getColumn(7).setCellRenderer(dateRenderer);
                     int IDMAX = db.getIDMaxFournisseur();
                     TXT_ID_FOURNISSEUR.setText(String.valueOf(IDMAX+1));
                     TXT_NOM_FOURNISSEUR.setText("");
-
+                    db.allLivraison(TABLE_ACHAT_MODIFIER);
                     TXT_ADRESSE_FOURNISSEUR.setText("");
                     TXT_EMAIL_FOURNISSEUR.setText("");
                     TXT_TELEPHONE_FOURNISSEUR.setText("");
@@ -6759,7 +6850,7 @@ if (client != null) {
         }
     }//GEN-LAST:event_BTN_IMPRIMER_ACHATActionPerformed
 
-    private void BTN_OPEN_PARAMETRE1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_OPEN_PARAMETRE1ActionPerformed
+    private void BTN_OPEN_PARAMETRE_SITActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_OPEN_PARAMETRE_SITActionPerformed
         Situationclient client;
         try {
             client = new Situationclient();
@@ -6768,11 +6859,17 @@ if (client != null) {
             Logger.getLogger(ACCEUIL1.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-    }//GEN-LAST:event_BTN_OPEN_PARAMETRE1ActionPerformed
+    }//GEN-LAST:event_BTN_OPEN_PARAMETRE_SITActionPerformed
 
-    private void BTN_OPEN_PARAMETRE2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_OPEN_PARAMETRE2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_BTN_OPEN_PARAMETRE2ActionPerformed
+    private void BTN_OPEN_PARAMETRE_SITFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_OPEN_PARAMETRE_SITFActionPerformed
+        Situationfournisseur fourni;
+        try {
+            fourni = new Situationfournisseur();
+            fourni.setVisible(true);
+        } catch (SQLException ex) {
+            Logger.getLogger(ACCEUIL1.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_BTN_OPEN_PARAMETRE_SITFActionPerformed
 
     private void CBX_CLIENT_VERSEMENTItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_CBX_CLIENT_VERSEMENTItemStateChanged
           Object cli=CBX_CLIENT_VERSEMENT.getSelectedItem();
@@ -6795,6 +6892,16 @@ if (client != null) {
     private void CBX_FOURNISSEUR_VERSEMENTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CBX_FOURNISSEUR_VERSEMENTActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_CBX_FOURNISSEUR_VERSEMENTActionPerformed
+
+    private void BTN_OPEN_PARAMETRE_LIVRAISONActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTN_OPEN_PARAMETRE_LIVRAISONActionPerformed
+       Impression imp;
+        try {
+            imp = new Impression();
+            imp.setVisible(true);
+        } catch (SQLException ex) {
+            Logger.getLogger(ACCEUIL1.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_BTN_OPEN_PARAMETRE_LIVRAISONActionPerformed
     public void Alert(String message){
         JFrame frame = new JFrame("Alerte Stock");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Modification du comportement de fermeture
@@ -6910,8 +7017,9 @@ if (client != null) {
     private javax.swing.JButton BTN_MODIFIER_VERS_CLIENT;
     private javax.swing.JButton BTN_MODIFIER_VERS_FOURNISSEUR;
     private javax.swing.JButton BTN_OPEN_PARAMETRE;
-    private javax.swing.JButton BTN_OPEN_PARAMETRE1;
-    private javax.swing.JButton BTN_OPEN_PARAMETRE2;
+    private javax.swing.JButton BTN_OPEN_PARAMETRE_LIVRAISON;
+    private javax.swing.JButton BTN_OPEN_PARAMETRE_SIT;
+    private javax.swing.JButton BTN_OPEN_PARAMETRE_SITF;
     private javax.swing.JButton BTN_RECHERCHE_ACHAT;
     private javax.swing.JButton BTN_RECHERCHE_LIVR1;
     private javax.swing.JButton BTN_SUPPRIMER_ACHAT;
@@ -7114,6 +7222,7 @@ if (client != null) {
     private javax.swing.JLabel jLabel64;
     private javax.swing.JLabel jLabel65;
     private javax.swing.JLabel jLabel66;
+    private javax.swing.JLabel jLabel67;
     private javax.swing.JLabel jLabel68;
     private javax.swing.JLabel jLabel69;
     private javax.swing.JLabel jLabel7;
@@ -7135,6 +7244,7 @@ if (client != null) {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JLabel jLabel99;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel11;
     private javax.swing.JPanel jPanel12;
     private javax.swing.JPanel jPanel13;
@@ -7155,6 +7265,8 @@ if (client != null) {
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
+    private javax.swing.JPanel jPanel8;
+    private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane10;
     private javax.swing.JScrollPane jScrollPane12;
